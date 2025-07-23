@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script src="https://kit.fontawesome.com/68959b25ab.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" th:href="@{/css/auth/auth.css}"/>
+    <title>Login & Registration</title>
+</head>
+<body>
+    <div class="container" th:classappend="${containerClass} ? 'sign-up-mode' : ''">
+        <div class="forms-container">
+            <div class="auth-forms">
+                <!-- Login Form -->
+                 <form th:action="@{/login}" method="post" class="auth-form sign-in-form">
+                    <h2 class="title">Login</h2>
+
+                    <div th:if="${param.error}" class="alert alert-danger">
+                        Invalid email or password.
+                    </div>
+
+                    <div th:if="${param.logout}" class="alert alert-success">
+                        You have been logged out successfully.
+                    </div>
+
+                    <div class="input-field">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" placeholder="Email" name="username" required
+                               title="Enter the email address you used to register an account"/>
+                    </div>
+
+                    <div class="input-field">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" placeholder="Password" name="password" required
+                               title="Enter the password you secured your account with"/>
+                    </div>
+
+                    <input type="submit" value="Sign In" class="btn solid"/>
+                    <p class="account-text">Forgot Password? <a href="@{forgot-password}" class="account-link">Reset it</a></p>
+                 </form>
+
+                <!-- Registration Form -->
+                 <form th:action="@{/register}" method="post" enctype="multipart/form-data"
+                       class="auth-form sign-up-form" th:object="${user}">
+                    <h2 class="title">Register</h2>
+
+                    <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                        Please correct the errors below.
+                    </div>
+
+                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+                    <div class="input-field" th:classappend="${#fields.hasErrors('avatarFile')} ? 'error' : ''">
+                        <i class="fas fa-camera"></i>
+                        <label for="avatar" class="file-input-label">Profile picture (Optional)</label>
+                        <input type="file" id="avatar" name="avatar"
+                               title="Choose an image file of JPEG/PNG format with a size <= 5MB"
+                               accept=".jpeg, .png" class="file-input">
+                        <span class="required">*</span>
+                        <small class="error-message" th:if="${#fields.hasErrors('avatarFile')}" th:errors="*{avatarFile}"></small>
+                    </div>
+
+                    <img id="avatarPreview" alt="" class="avatar-preview">
+
+                    <div class="input-field" th:classappend="${#fields.hasErrors('username')} ? 'error' : ''">
+                        <i class="fas fa-user"></i>
+                        <input type="text" th:field="*{username}" id="username"
+                               placeholder="Username"
+                               minlength="4" maxlength="20"
+                               title="Choose 4-20 characters (letters, numbers, _ only)"/>
+                        <span class="required">*</span>
+                        <small class="error-message" th:if="${#fields.hasErrors('username')}"
+                               th:errors="*{username}"></small>
+                        <small class="inline-error"></small>
+                    </div>
+
+                    <div class="input-field" th:classappend="${#fields.hasErrors('email')} ? 'error' : ''">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" th:field="*{email}"
+                               placeholder="Email" required
+                               title="E.g. example@email.com"/>
+                        <span class="required">*</span>
+                        <small class="error-message" th:if="${#fields.hasErrors('email')}"
+                               th:errors="*{email}">Taken</small>
+                        <small class="inline-error"></small>
+                    </div>
+
+                    <div class="input-field" th:classappend="${#fields.hasErrors('password')} ? 'error' : ''">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" th:field="*{password}"
+                               placeholder="Password" required
+                               pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,64}$"
+                               title="Must contain at least 1 number, 1 lowercase and 1 uppercase letter, and be 8-64 characters long"/>
+                        <span class="required">*</span>
+                        <small class="error-message" th:if="${#fields.hasErrors('password')}"
+                               th:errors="*{password}"></small>
+                        <small class="inline-error"></small>
+                    </div>
+
+                    <div class="input-field" th:classappend="${#fields.hasErrors('confirmPassword')} ? 'error' : ''">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" th:field="*{confirmPassword}"
+                               class="form-control" placeholder="Confirm Password" required
+                               title="Re-enter your password exactly as above"/>
+                        <span class="required">*</span>
+                        <small class="error-message" th:if="${#fields.hasErrors('confirmPassword')}"
+                               th:errors="*{confirmPassword}"></small>
+                        <small class="inline-error"></small>
+                    </div>
+
+                    <input type="submit" class="btn" value="Sign up"/>
+                 </form>
+            </div>
+        </div>
+
+        <div class="panels-container">
+            <div class="panel left-panel">
+                <div class="content">
+                    <h3>New here?</h3>
+                    <p>Create an account to get started with our platform!</p>
+                    <button class="btn transparent" id="sign-up-btn">Sign up</button>
+                </div>
+
+                <img th:src="@{/images/login.png}" class="image" alt="" />
+            </div>
+
+            <div class="panel right-panel">
+                <div class="content">
+                    <h3>Already registered?</h3>
+                    <p>Welcome back! Please sign in to access your account.</p>
+                    <button class="btn transparent" id="sign-in-btn">Sign In</button>
+                </div>
+
+                <img th:src="@{/images/register.png}" class="image" alt=""/>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/js/auth/auth.js}" defer></script>
+</body>
+</html>
