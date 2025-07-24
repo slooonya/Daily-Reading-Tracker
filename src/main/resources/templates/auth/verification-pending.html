@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email</title>
+    <script src="https://kit.fontawesome.com/68959b25ab.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" th:href="@{/css/auth/auth.css}"/>
+</head>
+<body>
+    <div class="container auth-container">
+        <div class="forms-container">
+            <div class="auth-forms single-form">
+                <div class="auth-form verify-form">
+
+                    <div class="verify-heading">
+                        <h2 class="title">Verify Your Email</h2>
+                    </div>
+
+                    <div class="verify-icon">
+                        <i class="fas fa-envelope-open-text"></i>
+                    </div>
+
+                    <p class="verify-text">We've sent a verification link to:</p>
+                    <p class="verify-email" th:text="${param.email}"></p>
+
+                    <div th:if="${param.resent}" class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> New verification email sent!
+                    </div>
+
+                    <form th:action="@{/resend-verification}" method="post" class="resend-form">
+                        <input type="hidden" name="email" th:value="${param.email[0]}">
+                        <button type="submit" class="btn resend-btn">
+                            <i class="fas fa-redo"></i> Resend Verification Email
+                        </button>
+                    </form>
+
+                    <div class="return-login">
+                        <a th:href="@{/auth}" class="account-link">
+                            <i class="fas fa-arrow-left"></i>Return to Login
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panels-container">
+            <div class="panel left-panel verify-panel">
+                <div class="content">
+                    <h3>Didn't receive the email?</h3>
+                    <p>Check your spam folder or resend the verification link</p>
+                </div>
+                <img th:src="@{/images/verification.png}" class="image" alt="Email verification illustration">
+            </div>
+        </div>
+    </div>
+</body>
+</html>

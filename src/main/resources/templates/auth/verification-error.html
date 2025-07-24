@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verification Error</title>
+    <script src="https://kit.fontawesome.com/68959b25ab.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" th:href="@{/css/auth/auth.css}"/>
+</head>
+<body>
+    <div class="container">
+        <div class="forms-container">
+            <div class="auth-forms">
+                <div class="auth-form error-form">
+                    <div class="error-container">
+                        <div class="error-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+
+                        <h2 class="title">Verification Failed</h2>
+                        <div class="alert alert-danger" th:text="${error}"></div>
+
+                        <div th:if="${param.containsKey('email')}">
+                            <form th:action="@{/resend-verification}" method="post" class="resend-form">
+                                <input type="hidden" name="email" th:value="${param.email[0]}">
+                                <button type="submit" class="btn resend-btn">
+                                    <i class="fas fa-redo"></i> Resend Verification Email
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="support-contact" th:unless="${param.containsKey('email')}">
+                            <p>Please contact support for assistance</p>
+                            <a href="mailto:support@dailyreadingtracker.com" class="btn support-btn">
+                                <i class="fas fa-envelope"></i> Contact Support
+                            </a>
+                        </div>
+
+                        <div class="return-login">
+                            <a th:href="@{/auth}" class="account-link">
+                                <i class="fas fa-arrow-left"></i> Return to Login
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panels-container">
+            <div class="panel left-panel">
+                <div class="content">
+                    <h3>Need help?</h3>
+                    <p>Contact support if you continue experiencing issues</p>
+                </div>
+                <img th:src="@{/images/error.png}" class="image" alt="Help illustration">
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/auth/verification-error.js}" defer></script>
+</body>
+</html>

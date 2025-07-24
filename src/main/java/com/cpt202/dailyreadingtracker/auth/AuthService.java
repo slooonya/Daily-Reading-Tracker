@@ -21,16 +21,19 @@ import jakarta.transaction.Transactional;
 @Service
 public class AuthService {
 
+    private final VerificationService verificationService;
+
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder encoder;
     private final FileStorageService fileStorageService;
 
-    AuthService(UserRepository userRepository, BCryptPasswordEncoder encoder, FileStorageService fileStorageService, RoleRepository roleRepository) {
+    AuthService(UserRepository userRepository, BCryptPasswordEncoder encoder, FileStorageService fileStorageService, RoleRepository roleRepository, VerificationService verificationService) {
         this.userRepository = userRepository;
         this.encoder = encoder;
         this.fileStorageService = fileStorageService;
         this.roleRepository = roleRepository;
+        this.verificationService = verificationService;
     }
     
     @Transactional
@@ -78,6 +81,14 @@ public class AuthService {
 
             userRepository.save(user);
             
+            if (request != null){
+                try {
+                    verificationService.createVerification(user.getEmail(), request);
+                } catch (Exception e){
+                    userRepository.delete(user);
+                    throw new EmailVerificationException("Failed to send verification email", e);
+                }
+            }
         } catch (RuntimeException e){
             throw new RegistrationException("Registration failed: " + e.getMessage(), e);
         }
@@ -90,6 +101,12 @@ public class AuthService {
 
         public RegistrationException(String message){
             super(message);
+        }
+    }
+
+    public class EmailVerificationException extends RuntimeException {
+        public EmailVerificationException(String message, Throwable cause){
+            super(message, cause);
         }
     }
 }
