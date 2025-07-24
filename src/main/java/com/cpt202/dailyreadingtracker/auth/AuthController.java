@@ -1,5 +1,7 @@
 package com.cpt202.dailyreadingtracker.auth;
 
+import java.io.IOException;
+
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
@@ -9,11 +11,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.cpt202.dailyreadingtracker.security.SecurityService;
 import com.cpt202.dailyreadingtracker.user.User;
 import com.cpt202.dailyreadingtracker.user.UserRepository;
+import com.cpt202.dailyreadingtracker.utils.FileStorageService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -30,13 +35,17 @@ public class AuthController {
     private final AuthService authService;
     private final UserRepository userRepository;
     private final SecurityService securityService;
+    private final FileStorageService fileStorageService;
 
-    AuthController(UserRepository userRepository, AuthService authService, SecurityService securityService) {
+    AuthController(UserRepository userRepository, AuthService authService, 
+                   SecurityService securityService, FileStorageService fileStorageService) {
         this.userRepository = userRepository;
         this.authService = authService;
         this.securityService = securityService;
+        this.fileStorageService = fileStorageService;
     }
     
+    @GetMapping("/auth")
     public String getAuthPage(Model model, @RequestParam(required = false) String error,
                               @RequestParam(required = false) String logout, @RequestParam(required = false) String mode){
         model.addAttribute("user", new User());
@@ -54,9 +63,19 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String processRegistration(@Valid @ModelAttribute("user") User user, BindingResult result,
-                                      HttpServletRequest request, RedirectAttributes redirectAttributes,
-                                      Model model) {
+    public String processRegistration(@Valid @ModelAttribute("user") User user, BindingResult result, 
+                                      @RequestParam(required = false) MultipartFile avatar, HttpServletRequest request, 
+                                      RedirectAttributes redirectAttributes, Model model) {
+        if (!avatar.isEmpty()){
+            try {
+                fileStorageService.validateFile(avatar);
+            } catch (IOException e){
+                String errorMessage = e.getMessage().contains("JPG format") ? e.getMessage()
+                                                                              : "Invalid image file: " + e.getMessage();
+                result.rejectValue("avatarFile", "file.error", errorMessage);
+            }
+        }
+
         if (user.getConfirmPassword() == null || user.getConfirmPassword().isEmpty())
             result.rejectValue("confirmPassword", "NotEmpty",
                           "Password confirmation is required");
@@ -77,7 +96,7 @@ public class AuthController {
             return "auth/authentication";
         }
 
-        authService.register(user, request);
+        authService.register(user, avatar, request);
 
         return "redirect:/verification-pending?email=" + user.getEmail();
     }
