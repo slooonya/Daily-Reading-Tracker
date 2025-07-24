@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +60,30 @@ public class FileStorageService {
     }
 
     public String storeAvatar(MultipartFile file, String username) throws IOException {
-        return "";
+        if (file == null || file.isEmpty())
+            return null;
+
+        validateFile(file);
+
+        String filename = generateUniqueFilename(file, username);
+        Path destinationPath = storageBasePath.resolve(filename);
+
+        try {
+            file.transferTo(destinationPath);
+            logger.info("Stored avatar for {} at: {}", username, destinationPath);
+            return filename;
+        } catch (IOException e){
+            logger.error("Failed to store avatar for {}", username, e);
+            throw new IOException("Failed to store avatar file", e);
+        }
+    }
+
+    public String generateUniqueFilename(MultipartFile file, String username){
+        String extension = file.getContentType().split("/")[1];
+        return String.format("%s-avatar-%s.%s", formatFilename(username), UUID.randomUUID(), extension);
+    }
+
+    public String formatFilename(String filename){
+        return filename.replaceAll("[^a-zA-Z0-9.-]", "_");
     }
 }
