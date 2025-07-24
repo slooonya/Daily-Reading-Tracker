@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.cpt202.dailyreadingtracker.auth.VerificationToken;
 import com.cpt202.dailyreadingtracker.role.Role;
 
 import jakarta.persistence.CascadeType;
