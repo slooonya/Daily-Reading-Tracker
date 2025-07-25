@@ -78,4 +78,33 @@ public class EmailService {
         }
     }
 
+    public void sendPasswordResetEmail(User user, String url){
+        String subject = "Password Reset Request";
+        String content = String.format("""
+                <html>
+                    <body>
+                        <p>Dear %s,</p>
+                        <p>We received a request to reset your password.</p>
+                        <p>Click <a href="%s">here</a> to reset your password.</p>
+                        <p>If you didn't request this, please ignore this email.</p>
+                        <p>Best regards, <br>%s Team</p>
+                    </body>
+                </html>
+                """, user.getUsername(), url, senderName);
+
+        try {
+            sendHtmlEmail(user.getEmail(), subject, content);
+            logger.info("Reset email sent to {} with link: {}", user.getEmail(), url);
+        } catch (MessagingException | UnsupportedEncodingException e){
+            logger.error("Failed to send password reset email to {}", user.getEmail(), e);
+            throw new EmailException("Failed to send passoword reset email", e);
+        }
+    }
+
+    public class EmailException extends RuntimeException {
+        public EmailException(String message, Throwable cause){
+            super(message, cause);
+        }
+    }
+
 }

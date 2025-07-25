@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.cpt202.dailyreadingtracker.user.User;
 import com.cpt202.dailyreadingtracker.user.UserRepository;
+import com.cpt202.dailyreadingtracker.utils.EmailService;
 import com.cpt202.dailyreadingtracker.utils.JWTTokenUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,14 +23,16 @@ public class VerificationService {
     private final VerificationTokenRepository verificationTokenRepository;
     private final UserRepository userRepository;
     private final JWTTokenUtil jwtTokenUtil;
+    private final EmailService emailService;
 
     private static final Logger logger = LoggerFactory.getLogger(VerificationService.class);
 
     public VerificationService(VerificationTokenRepository verificationTokenRepository, UserRepository userRepository,
-                               JWTTokenUtil jwtTokenUtil){
+                               JWTTokenUtil jwtTokenUtil, EmailService emailService){
         this.verificationTokenRepository = verificationTokenRepository;
         this.userRepository = userRepository;
         this.jwtTokenUtil = jwtTokenUtil;
+        this.emailService = emailService;
     }
     
     @Transactional
@@ -85,6 +88,8 @@ public class VerificationService {
         verificationTokenRepository.save(token);
 
         String verificationUrl = generateVerificationUrl(request, token.getToken());
+
+        emailService.sendVerificationEmail(user, verificationUrl);
     }
 
     private String generateVerificationUrl(HttpServletRequest request, String token){
