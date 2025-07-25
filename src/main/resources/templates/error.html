@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Error Page</title>
+    <link rel="stylesheet" th:href="@{/css/error.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <main>
+        <div class="error-container">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+
+            <h1 class="error-title">Oops! Something went wrong</h1>
+            <p class="error-message">
+                We encountered an unexpected error while processing your request.
+                Please try again later or contact support if the problem persists.
+            </p>
+
+            <div class="error-actions">
+                <button onclick="window.history.back()" class="error-btn secondary">
+                    <i class="fas fa-arrow-left"></i> Go Back
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script th:src="@{/js/error.js}"></script>
+</body>
+</html>
