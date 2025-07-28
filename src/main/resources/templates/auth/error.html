@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <script src="https://kit.fontawesome.com/68959b25ab.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" th:href="@{/css/auth/auth.css}"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Error</title>
+    <script src="https://kit.fontawesome.com/68959b25ab.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" th:href="@{/css/auth/auth.css}" />
 </head>
 <body>
     <div class="container">
@@ -16,23 +16,22 @@
                         <div class="error-icon">
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
-
-                        <h2 class="title">Error occured</h2>
-
+                        
+                        <h2 class="title">Error Occurred</h2>
+                        
                         <div class="alert alert-danger">
-                            <p th:text="${error} ?: 'An unexpected error occured'"></p>
+                            <p th:text="${error} ?: 'An unexpected error occurred'"></p>
                         </div>
-
+                        
                         <th:block th:if="${error == 'Link already expired, resend link'}">
                             <form th:action="@{/forgot-password/resend}" method="post" class="resend-form">
                                 <input type="hidden" name="email" th:value="${param.email[0]}">
-
                                 <button type="submit" class="btn resend-btn">
-                                    <i class="fas fa-redo"></i> Redo Reset Link
+                                    <i class="fas fa-redo"></i> Resend Reset Link
                                 </button>
                             </form>
                         </th:block>
-
+                        
                         <div class="back-action">
                             <a th:href="@{/}" class="account-link">
                                 <i class="fas fa-arrow-left"></i> Go Back
@@ -42,8 +41,8 @@
                         <div th:if="${resendSuccess}" class="alert alert-success">
                             New reset link sent successfully!
                         </div>
-
-                        <div th:if="${resendError}" class="alert alert-danger" th:text="${resendError}"></div>
+                        <div th:if="${resendError}" class="alert alert-danger" th:text="${resendError}">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -52,14 +51,13 @@
         <div class="panels-container">
             <div class="panel left-panel error-help">
                 <div class="content">
-                    <h3>Need Help?</h3>
+                    <h3>Need help?</h3>
                     <p>Contact support if you need assistance resolving this issue</p>
                 </div>
                 <img th:src="@{/images/error.png}" class="image" alt="Help illustration">
             </div>
-        </div>
+        </div>   
     </div>
-
-    <script th:src="@{/js/auth/error.js}"></script>
+    <script th:src="@{/js/auth/error.js}" defer></script>
 </body>
 </html>

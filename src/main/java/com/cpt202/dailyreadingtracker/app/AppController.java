@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.web.bind.annotation.GetMapping;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,7 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @Controller
 @RequiredArgsConstructor
 public class AppController {
-    
+
     @GetMapping("/home")
     public String getHomePage(Authentication authentication, Model model, HttpServletRequest request) {
         model.addAttribute("_csrf", request.getAttribute("_csrf"));
@@ -22,8 +23,7 @@ public class AppController {
     }
 
     @GetMapping("/error")
-    public String getErrorPage() {
+    public String showErrorPage() {
         return "error";
     }
-    
 }

@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class VerificationControllerTest {
 
     @Mock
-    private VerificationService verificationTokenService;
+    private VerificationService verificationService;
 
     @InjectMocks
     private VerificationController verificationController;
@@ -38,7 +38,7 @@ class VerificationControllerTest {
     // VC_001
     @Test
     public void testVerifyEmailWithValidToken() throws Exception {
-        when(verificationTokenService.verifyEmail("validToken"))
+        when(verificationService.verifyEmail("validToken"))
                 .thenReturn(ResponseEntity.ok("Success"));
 
         mockMvc.perform(get("/verify-email")
@@ -50,9 +50,9 @@ class VerificationControllerTest {
     // VC_002
     @Test
     public void testVerifyEmailWithInvalidToken() throws Exception {
-        when(verificationTokenService.verifyEmail("invalidToken"))
+        when(verificationService.verifyEmail("invalidToken"))
                 .thenReturn(ResponseEntity.badRequest().body("Invalid token"));
-        when(verificationTokenService.getEmailFromToken("invalidToken"))
+        when(verificationService.getEmailFromToken("invalidToken"))
                 .thenReturn("user@test.com");
 
         mockMvc.perform(get("/verify-email")
@@ -64,9 +64,9 @@ class VerificationControllerTest {
     // VC_003
     @Test
     public void testVerifyEmailWithExpiredToken() throws Exception {
-        when(verificationTokenService.verifyEmail("expiredToken"))
+        when(verificationService.verifyEmail("expiredToken"))
                 .thenReturn(ResponseEntity.badRequest().body("Token expired"));
-        when(verificationTokenService.getEmailFromToken("expiredToken"))
+        when(verificationService.getEmailFromToken("expiredToken"))
                 .thenReturn("user@test.com");
 
         mockMvc.perform(get("/verify-email")
@@ -100,7 +100,7 @@ class VerificationControllerTest {
     @Test
     public void testResendVerificationFailure() throws Exception {
         doThrow(new RuntimeException("Invalid email"))
-                .when(verificationTokenService)
+                .when(verificationService)
                 .createVerification(eq("invalid@test.com"), any());
 
         mockMvc.perform(post("/resend-verification")
@@ -112,9 +112,9 @@ class VerificationControllerTest {
     // VC_007
     @Test
     public void testVerifyEmailWithException() throws Exception {
-        when(verificationTokenService.verifyEmail("errorToken"))
+        when(verificationService.verifyEmail("errorToken"))
                 .thenThrow(new RuntimeException("Service error"));
-        when(verificationTokenService.getEmailFromToken("errorToken"))
+        when(verificationService.getEmailFromToken("errorToken"))
                 .thenReturn("user@test.com");
 
         mockMvc.perform(get("/verify-email")
@@ -126,9 +126,9 @@ class VerificationControllerTest {
     // VC_008
     @Test
     public void testVerifyEmailNoEmailFromToken() throws Exception {
-        when(verificationTokenService.verifyEmail("noEmailToken"))
+        when(verificationService.verifyEmail("noEmailToken"))
                 .thenReturn(ResponseEntity.badRequest().body("Error"));
-        when(verificationTokenService.getEmailFromToken("noEmailToken"))
+        when(verificationService.getEmailFromToken("noEmailToken"))
                 .thenReturn(null);
 
         mockMvc.perform(get("/verify-email")

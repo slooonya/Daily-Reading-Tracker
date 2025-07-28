@@ -38,17 +38,17 @@ public class VerificationService {
     @Transactional
     public ResponseEntity<String> verifyEmail(String tokenValue) {
         try {
-            VerificationToken token = verificationTokenRepository.findByToken(tokenValue).orElseThrow(() ->
-                new IllegalArgumentException("Invalid verification token"));
+            VerificationToken token = verificationTokenRepository.findByToken(tokenValue)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid verification token"));
 
             validateToken(token);
 
             token.getUser().setEnabled(true);
             token.setStatus(VerificationToken.STATUS_VERIFIED);
             token.setConfirmedDateTime(LocalDateTime.now());
-
+            
             userRepository.save(token.getUser());
-
+            
             return ResponseEntity.ok("Email verified successfully. You may now log in.");
         } catch (Exception e) {
             logger.error("Email verification failed", e);
@@ -74,8 +74,8 @@ public class VerificationService {
 
     @Transactional
     public void createVerification(String email, HttpServletRequest request){
-        User user = userRepository.findByEmail(email).orElseThrow(() -> 
-            new IllegalArgumentException("User not found with email: " + email));
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
 
         verificationTokenRepository.deleteAllByUser(user);
 
@@ -89,7 +89,7 @@ public class VerificationService {
 
         String verificationUrl = generateVerificationUrl(request, token.getToken());
 
-        emailService.sendVerificationEmail(user, verificationUrl);
+        emailService.sendVerificationEmail(user, verificationUrl); 
     }
 
     private String generateVerificationUrl(HttpServletRequest request, String token){

@@ -43,8 +43,9 @@ public class PasswordResetController {
 
     @RateLimiter(name = "passwordResetLimiter")
     @PostMapping("/forgot-password/resend")
-    public String resendPasswordResetLink(@RequestParam String email, HttpServletRequest request,
+    public String resendPasswordResetLink(@RequestParam String email, HttpServletRequest request, 
                                           RedirectAttributes redirectAttributes) {
+        
         passwordResetService.invalidateExistingTokens(email);
 
         String result = passwordResetService.requestPasswordReset(email, request);
@@ -54,11 +55,11 @@ public class PasswordResetController {
     }
 
     @GetMapping("/reset-password")
-    public String showResetForm(@RequestParam String token, Model model){
+    public String showResetForm(@RequestParam String token, Model model) {
         try {
             String validationResult = passwordResetService.validatePasswordResetToken(token);
-
-            if (!"valid".equals(validationResult)){
+            
+            if (!"valid".equals(validationResult)) {
                 model.addAttribute("error", validationResult);
                 return "auth/error";
             }
@@ -67,7 +68,7 @@ public class PasswordResetController {
 
             return "auth/password-reset-form";
         } catch (Exception e) {
-            model.addAttribute("error", "An unexpected error occured");
+            model.addAttribute("error", "An unexpected error occurred");
 
             return "auth/error";
         }
@@ -76,15 +77,16 @@ public class PasswordResetController {
     @RateLimiter(name = "passwordResetAttemptLimiter")
     @PostMapping("/reset-password")
     public String processPasswordReset(@RequestParam String token, @RequestParam String password,
-                                       @RequestParam String confirmPassword, RedirectAttributes redirectAttributes){
-        if (!password.equals(confirmPassword)){
+                                       @RequestParam String confirmPassword, RedirectAttributes redirectAttributes) {
+
+        if (!password.equals(confirmPassword)) {
             redirectAttributes.addAttribute("error", "Passwords don't match");
             return "redirect:/reset-password?token=" + token;
         }
 
         String result = passwordResetService.processPasswordReset(token, password);
-
-        if (result.startsWith("Error")){
+        
+        if (result.startsWith("Error")) {
             redirectAttributes.addAttribute("error", result);
             return "redirect:/reset-password?token=" + token;
         }

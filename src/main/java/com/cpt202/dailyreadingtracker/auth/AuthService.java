@@ -38,22 +38,22 @@ public class AuthService {
     
     @Transactional
     public void register(User user, MultipartFile avatar, HttpServletRequest request){
-        try{
+        try {
             if (userRepository.existsByEmail(user.getEmail()) || 
-                userRepository.existsByUsername(user.getUsername()))
+            userRepository.existsByUsername(user.getUsername())) 
                 throw new IllegalArgumentException("User already exists");
 
             if (!user.isPasswordsMatch())
                 throw new RegistrationException("Passwords must match");
-
+   
             user.setConfirmPassword(null);
             user.setPassword(encoder.encode(user.getPassword()));
 
-            if (avatar != null && !avatar.isEmpty()){
+            if (avatar != null && !avatar.isEmpty()) {
                 try {
                     String avatarFilename = fileStorageService.storeAvatar(avatar, user.getUsername());
                     user.setAvatarFileName(avatarFilename);
-                } catch (IOException e){
+                } catch (IOException e) {
                     throw new RuntimeException("Failed to store avatar", e);
                 }
             }
@@ -65,23 +65,25 @@ public class AuthService {
 
             Role defaultRole;
             if (isFirstUser) {
-                defaultRole = roleRepository.findByName("ROLE_ADMIN").orElseGet(() -> {
-                    Role newRole = new Role("ROLE_ADMIN");
-                    return roleRepository.save(newRole);
-                });
+                defaultRole = roleRepository.findByName("ROLE_ADMIN")
+                    .orElseGet(() -> {
+                        Role newRole = new Role("ROLE_ADMIN");
+                        return roleRepository.save(newRole);
+                    });
             } else {
-                defaultRole = roleRepository.findByName("ROLE_USER").orElseGet(()-> {
-                    Role newRole = new Role("USER_ROLE");
-                    return roleRepository.save(newRole);
-                });
+                defaultRole = roleRepository.findByName("ROLE_USER")
+                    .orElseGet(() -> {
+                        Role newRole = new Role("ROLE_USER");
+                        return roleRepository.save(newRole);
+                    });
             }
 
             user.getRoles().clear();
             user.getRoles().add(defaultRole);
 
             userRepository.save(user);
-            
-            if (request != null){
+
+            if (request != null) {
                 try {
                     verificationService.createVerification(user.getEmail(), request);
                 } catch (Exception e){
@@ -89,9 +91,9 @@ public class AuthService {
                     throw new EmailVerificationException("Failed to send verification email", e);
                 }
             }
-        } catch (RuntimeException e){
+        } catch (RuntimeException e) {
             throw new RegistrationException("Registration failed: " + e.getMessage(), e);
-        }
+        }            
     }
 
     public class RegistrationException extends RuntimeException{

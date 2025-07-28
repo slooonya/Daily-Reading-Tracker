@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -85,5 +86,44 @@ public class FileStorageService {
 
     public String formatFilename(String filename){
         return filename.replaceAll("[^a-zA-Z0-9.-]", "_");
+    }
+
+    public UrlResource loadAvatar(String filename) throws IOException{
+        if (filename == null || filename.isBlank()){
+            logger.debug("Requested empty filename for avatar");
+            return null;
+        }
+
+        Path filePath = storageBasePath.resolve(filename).normalize();
+
+        if (!filePath.startsWith(storageBasePath))
+            throw new IOException("Attempted path traversal attack");
+        
+        UrlResource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists() || !resource.isReadable()){
+            logger.warn("Avatar file not found or not readable: {}", filename);
+            return null;
+        }
+
+        return resource;
+    }
+
+    public void deleteAvatar(String filename) throws IOException{
+        if (filename == null || filename.isBlank())
+            return;
+        
+        Path filePath = storageBasePath.resolve(filename).normalize();
+
+        if (!filePath.startsWith(storageBasePath))
+            throw new IOException("Attempted path traversal attack");
+
+        try {
+            Files.deleteIfExists(filePath);
+            logger.info("Deleted avatar file: {}", filename);
+        } catch (IOException e) {
+            logger.error("Failed to delete avatar file: {}", filename, e);
+            throw new IOException("Failed to delete avatar file", e);
+        }
     }
 }

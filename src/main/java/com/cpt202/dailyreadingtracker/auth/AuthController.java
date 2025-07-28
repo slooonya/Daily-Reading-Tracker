@@ -31,31 +31,31 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class AuthController {
-
+    
     private final AuthService authService;
-    private final UserRepository userRepository;
     private final SecurityService securityService;
+    private final UserRepository userRepository;
     private final FileStorageService fileStorageService;
 
-    AuthController(UserRepository userRepository, AuthService authService, 
-                   SecurityService securityService, FileStorageService fileStorageService) {
-        this.userRepository = userRepository;
+    public AuthController(AuthService authService, SecurityService securityService, 
+                        UserRepository userRepository, FileStorageService fileStorageService){
         this.authService = authService;
         this.securityService = securityService;
+        this.userRepository = userRepository;
         this.fileStorageService = fileStorageService;
     }
-    
+
     @GetMapping("/auth")
     public String getAuthPage(Model model, @RequestParam(required = false) String error,
-                              @RequestParam(required = false) String logout, @RequestParam(required = false) String mode){
+                        @RequestParam(required = false) String logout, @RequestParam(required = false) String mode) {
         model.addAttribute("user", new User());
-
+        
         if (error != null)
             model.addAttribute("error", "Your email or password is invalid.");
-
+        
         if (logout != null)
             model.addAttribute("message", "You have been logged out successfully.");
-            
+        
         if (mode.equals("register"))
             model.addAttribute("defaultToRegister", true);
 
@@ -63,22 +63,22 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String processRegistration(@Valid @ModelAttribute("user") User user, BindingResult result, 
-                                      @RequestParam(required = false) MultipartFile avatar, HttpServletRequest request, 
-                                      RedirectAttributes redirectAttributes, Model model) {
-        if (!avatar.isEmpty()){
+    public String processRegistration(@Valid @ModelAttribute("user") User user, BindingResult result,
+                                    @RequestParam(required = false) MultipartFile avatar, HttpServletRequest request, 
+                                    RedirectAttributes redirectAttributes, Model model) {
+        if (!avatar.isEmpty()) {
             try {
                 fileStorageService.validateFile(avatar);
-            } catch (IOException e){
-                String errorMessage = e.getMessage().contains("JPG format") ? e.getMessage()
-                                                                              : "Invalid image file: " + e.getMessage();
+            } catch (IOException e) {
+                String errorMessage = e.getMessage().contains("JPG format") ? e.getMessage() 
+                                                                          : "Invalid image file: " + e.getMessage();
                 result.rejectValue("avatarFile", "file.error", errorMessage);
             }
         }
 
         if (user.getConfirmPassword() == null || user.getConfirmPassword().isEmpty())
-            result.rejectValue("confirmPassword", "NotEmpty",
-                          "Password confirmation is required");
+            result.rejectValue("confirmPassword", "NotEmpty", 
+                        "Password confirmation is required");
 
         if (!user.isPasswordsMatch())
             result.rejectValue("confirmPassword", "Match", "Passwords must match");
@@ -89,35 +89,34 @@ public class AuthController {
         if (userRepository.existsByUsername(user.getUsername()))
             result.rejectValue("username", "Duplicate", "Taken");
 
-        if (result.hasErrors()){
+        if (result.hasErrors()) {
             model.addAttribute("defaultToRegister", true);
             model.addAttribute("showRegisterForm", true);
             model.addAttribute("containerClass", "sign-up-mode");
             return "auth/authentication";
         }
-
+        
         authService.register(user, avatar, request);
-
         return "redirect:/verification-pending?email=" + user.getEmail();
     }
 
     @PostMapping("/login")
-    public String loginUser(@RequestParam String email, @RequestParam String password,
-                            RedirectAttributes redirectAttributes){
-        try{
-            securityService.autoLogin(email, password);
+    public String loginUser(@RequestParam String username, @RequestParam String password, 
+                            RedirectAttributes redirectAttributes) {
+        try {
+            securityService.autoLogin(username, password);
             return "redirect:/home";
-        } catch (DisabledException e){
-            redirectAttributes.addAttribute("email", email);
-            return "redirect:/verication-pending";
-        } catch (BadCredentialsException e){
-            redirectAttributes.addAttribute("error", "Invalid credentials");
+        } catch (DisabledException e) {
+            redirectAttributes.addAttribute("email", username);
+            return "redirect:/verification-pending";
+        } catch (BadCredentialsException e) {
+            redirectAttributes.addFlashAttribute("error", "Invalid credentials");
             return "redirect:/auth?mode=login";
         }
     }
 
     @GetMapping("/logout")
-    public String logout(HttpServletRequest request, HttpServletResponse response){
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth != null)

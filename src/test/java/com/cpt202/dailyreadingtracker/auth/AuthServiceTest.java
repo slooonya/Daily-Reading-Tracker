@@ -43,7 +43,7 @@ public class AuthServiceTest {
     private FileStorageService fileStorageService;
     
     @Mock
-    private VerificationService verificationTokenService;
+    private VerificationService verificationService;
 
     @Mock
     private HttpServletRequest request;
@@ -126,7 +126,7 @@ public class AuthServiceTest {
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
 
         doThrow(new RuntimeException("SMTP error"))
-                .when(verificationTokenService)
+                .when(verificationService)
                 .createVerification(anyString(), any());
 
         assertThrows(AuthService.RegistrationException.class,

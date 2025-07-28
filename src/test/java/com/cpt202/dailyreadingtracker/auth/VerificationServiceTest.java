@@ -45,7 +45,7 @@ public class VerificationServiceTest {
     private HttpServletRequest request;
     
     @InjectMocks
-    private VerificationService verificationTokenService;
+    private VerificationService verificationService;
 
     private User testUser;
     private VerificationToken validToken;
@@ -89,7 +89,7 @@ public class VerificationServiceTest {
         expectedToken.setToken("generatedToken");
         when(tokenRepository.save(any())).thenReturn(expectedToken);
 
-        verificationTokenService.createVerification("usertest@test.com", request);
+        verificationService.createVerification("usertest@test.com", request);
 
         verify(tokenRepository).deleteAllByUser(testUser);
         verify(tokenRepository).save(any(VerificationToken.class));
@@ -101,7 +101,7 @@ public class VerificationServiceTest {
     public void testVerifyEmailValidToken() {
         when(tokenRepository.findByToken("validToken")).thenReturn(Optional.of(validToken));
 
-        ResponseEntity<String> response = verificationTokenService.verifyEmail("validToken");
+        ResponseEntity<String> response = verificationService.verifyEmail("validToken");
 
         assertTrue(testUser.isEnabled());
         assertEquals(VerificationToken.STATUS_VERIFIED, validToken.getStatus());
@@ -115,7 +115,7 @@ public class VerificationServiceTest {
     public void testVerifyEmailAlreadyVerified() {
         when(tokenRepository.findByToken("verifiedToken")).thenReturn(Optional.of(verifiedToken));
 
-        ResponseEntity<String> response = verificationTokenService.verifyEmail("verifiedToken");
+        ResponseEntity<String> response = verificationService.verifyEmail("verifiedToken");
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertTrue(response.getBody().contains("Email already verified"));
@@ -127,7 +127,7 @@ public class VerificationServiceTest {
     public void testVerifyEmailExpiredToken() {
         when(tokenRepository.findByToken("expiredToken")).thenReturn(Optional.of(expiredToken));
 
-        ResponseEntity<String> response = verificationTokenService.verifyEmail("expiredToken");
+        ResponseEntity<String> response = verificationService.verifyEmail("expiredToken");
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertTrue(response.getBody().contains("Token expired"));
@@ -139,7 +139,7 @@ public class VerificationServiceTest {
     public void testVerifyEmailInvalidToken() {
         when(tokenRepository.findByToken("invalidToken")).thenReturn(Optional.empty());
 
-        ResponseEntity<String> response = verificationTokenService.verifyEmail("invalidToken");
+        ResponseEntity<String> response = verificationService.verifyEmail("invalidToken");
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertTrue(response.getBody().contains("Invalid verification token"));
@@ -150,17 +150,17 @@ public class VerificationServiceTest {
     public void testGetEmailFromTokenValidToken() {
         when(tokenRepository.findByToken("validToken")).thenReturn(Optional.of(validToken));
 
-        String email = verificationTokenService.getEmailFromToken("validToken");
+        String email = verificationService.getEmailFromToken("validToken");
 
         assertEquals("testuser@test.com", email);
     }
 
     // VS_007
     @Test
-    void getEmailFromTokenInvalidToken() {
+    void testGetEmailFromTokenInvalidToken() {
         when(tokenRepository.findByToken("invalidToken")).thenReturn(Optional.empty());
 
-        String email = verificationTokenService.getEmailFromToken("invalidToken");
+        String email = verificationService.getEmailFromToken("invalidToken");
 
         assertNull(email);
     }

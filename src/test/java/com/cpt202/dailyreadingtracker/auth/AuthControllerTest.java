@@ -30,8 +30,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @ExtendWith(MockitoExtension.class)
-public class AuthControllerTest {
-    
+class AuthControllerTest {
+
     @Mock
     private AuthService authService;
 
@@ -56,7 +56,11 @@ public class AuthControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
 
         validAvatar = new MockMultipartFile(
-            "avatar", "test.png", "image/png", "test-image".getBytes());
+                "avatar",
+                "test.png",
+                "image/png",
+                "test-image".getBytes()
+        );
 
         testUser = new User();
         testUser.setEmail("testuser@test.com");
@@ -69,10 +73,10 @@ public class AuthControllerTest {
     @Test
     public void testGetAuthPage() throws Exception {
         mockMvc.perform(get("/auth"))
-            .andExpect(status().isOk())
-            .andExpect(view().name("auth/authentication"))
-            .andExpect(model().attributeExists("user"))
-            .andExpect(model().attributeDoesNotExist("error"));
+                .andExpect(status().isOk())
+                .andExpect(view().name("auth/authentication"))
+                .andExpect(model().attributeExists("user"))
+                .andExpect(model().attributeDoesNotExist("error"));
     }
 
     // AC_002
