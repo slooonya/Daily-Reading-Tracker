@@ -24,7 +24,7 @@ import com.cpt202.dailyreadingtracker.security.CustomUserDetailsService.AccountF
 public class SecurityConfig {
 
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder(){
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -37,7 +37,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/api/**")
+                .ignoringRequestMatchers("/api/**") 
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             )
             .authorizeHttpRequests(auth -> auth
@@ -52,26 +52,36 @@ public class SecurityConfig {
                     "/verify-email**",
                     "/resend-verification",
                     "/resend-verification/**",
-                    "/verification-pending",
-                    "/verification-pending/**",
-                    "/forgot-password",
-                    "/forgot-password/**",
-                    "/reset-password",
-                    "/reset-password/**",
+                    "/verify-pending",
+                    "/verify-pending/**",
                     "/css/**",
                     "/js/**",
                     "/images/**",
+                    "/forgot-password",
+                    "/forgot-password/**",
+                    "/reset-password/**",
+                    "/reset-password",
                     "/logout",
+                    "/account-frozen",
                     "/error"
                 ).permitAll()
-                .requestMatchers("/home").hasRole("USER")
-
+                .requestMatchers("/home").hasRole("USER") 
+                .requestMatchers("/progress").hasRole("USER") 
+                .requestMatchers("/profile").hasRole("USER") 
+                .requestMatchers("/homeforadmin").hasRole("ADMIN")
+                .requestMatchers("/alluserlogs").hasRole("ADMIN")
+                .requestMatchers("/viologs").hasRole("ADMIN")
+                .requestMatchers("/admin-profile").hasRole("ADMIN")
+                .requestMatchers("/getviologs").hasRole("ADMIN")
+                .requestMatchers("/sorted_admin_userlist").hasRole("ADMIN")
+                .requestMatchers("/sorted_admin_userlist/**").hasRole("ADMIN")
+                
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/auth")
                 .failureHandler(authenticationFailureHandler())
-                .loginProcessingUrl("/login")
+                .loginProcessingUrl("/login") 
                 .successHandler(authenticationSuccessHandler())
                 .permitAll()
             )
@@ -81,33 +91,12 @@ public class SecurityConfig {
                 .clearAuthentication(true)
                 .permitAll()
             )
-
+            
             .exceptionHandling(exceptions -> exceptions
             .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/auth"))
-            );
+        );
 
-            return http.build();
-    }
-
-    @Bean
-    public AuthenticationFailureHandler authenticationFailureHandler() {
-        return (request, response, exception) -> {
-            String email = request.getParameter("username");
-            String redirectUrl = "/auth?error=true";
-
-            if (exception instanceof InternalAuthenticationServiceException &&
-                exception.getCause() instanceof CustomUserDetailsService.UnverifiedAccountException)
-                    redirectUrl = "/verification-pending?email=" + email;
-            else if (exception instanceof BadCredentialsException)
-                redirectUrl = "/auth?error=true";
-            else if (exception instanceof InternalAuthenticationServiceException){
-                Throwable cause = exception.getCause();
-                if (cause instanceof AccountFrozenException)
-                    redirectUrl = "/account-frozen";
-            }
-
-            response.sendRedirect(redirectUrl);
-        };
+        return http.build();
     }
 
     @Bean
@@ -115,11 +104,33 @@ public class SecurityConfig {
         return (request, response, authentication) -> {
             boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
-
-            System.out.println("SecurityConfig Login Success - Permissions: " + authentication.getAuthorities());
-            String targetUrl = isAdmin ? "/homeforadmin" : "home";
+                System.out.println("SercurityConfig Login Success - Permissions: " + authentication.getAuthorities());
+            String targetUrl = isAdmin ? "/homeforadmin" : "/home";
             response.sendRedirect(targetUrl);
         };
     }
-    
+
+    @Bean
+    public AuthenticationFailureHandler authenticationFailureHandler() {
+        return (request, response, exception) -> {
+            String email = request.getParameter("username");
+            String redirectUrl = "/auth?error=true";
+            
+           if (exception instanceof InternalAuthenticationServiceException && 
+            exception.getCause() instanceof CustomUserDetailsService.UnverifiedAccountException) {
+            redirectUrl = "/verify-pending?email=" + email;
+            }
+            else if (exception instanceof BadCredentialsException) {
+                redirectUrl = "/auth?error=true";
+            }
+            else if (exception instanceof InternalAuthenticationServiceException){
+                Throwable cause = exception.getCause();
+                if (cause instanceof AccountFrozenException) {
+                    redirectUrl = "/account-frozen";
+                }
+            }
+
+            response.sendRedirect(redirectUrl);
+        };
+    }
 }

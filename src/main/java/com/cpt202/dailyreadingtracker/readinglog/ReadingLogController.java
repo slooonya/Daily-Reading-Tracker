@@ -26,11 +26,20 @@ import lombok.RequiredArgsConstructor;
 public class ReadingLogController {
 
     private final ReadingLogService readingLogService;
+    
+    @GetMapping
+    public ResponseEntity<List<ReadingLog>> getAllLogs(Principal principal) {
+        Long userId = readingLogService.getUserIdFromPrincipal(principal);
+        List<ReadingLog> logs = readingLogService.getAllLogsByUser(userId);
+
+        return ResponseEntity.ok(logs);
+    }
 
     @GetMapping("/{logId}")
     public ResponseEntity<?> getLogById(@PathVariable("logId") Long id, Principal principal) {
-        if (id <= 0)
+        if (id <= 0) {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid log ID format"));
+        }
 
         Long userId = readingLogService.getUserIdFromPrincipal(principal);
 
@@ -102,5 +111,15 @@ public class ReadingLogController {
             return ResponseEntity.status(403).body(Map.of("error", "Access denied"));
         }
     }
-    
+
+    @GetMapping("/history")
+    public ResponseEntity<List<ReadingLogHistoryDto>> getLogHistory(@RequestParam String title,
+                                    @RequestParam String author, @RequestParam Long currentLogId, Principal principal) {
+        
+        Long userId = readingLogService.getUserIdFromPrincipal(principal);
+        List<ReadingLogHistoryDto> history = readingLogService
+            .getLogHistory(userId, title, author, currentLogId);
+        
+        return ResponseEntity.ok(history);
+    }
 }

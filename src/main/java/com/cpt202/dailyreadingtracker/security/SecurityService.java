@@ -20,58 +20,58 @@ import com.cpt202.dailyreadingtracker.user.UserRepository;
 
 @Service
 public class SecurityService {
-
-    private final UserRepository userRepository;
+    
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
-
+    private final UserRepository userRepository;
     private static final Logger logger = LoggerFactory.getLogger(SecurityService.class);
 
-    public SecurityService(UserRepository userRepository, AuthenticationManager authenticationManager,
-                           UserDetailsService userDetailsService){
-        this.userRepository = userRepository;
+    public SecurityService(AuthenticationManager authenticationManager, 
+                         UserDetailsService userDetailsService,
+                         UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
+        this.userRepository = userRepository;
     }
-    
-    public void autoLogin(String username, String password){
-        try{
-            User user = userRepository.findByUsername(username).orElseThrow(() -> 
-                new UsernameNotFoundException("User not found"));
 
-            if (!user.isEnabled())
-                throw new EmailNotVerifiedException("Email address not verified"); 
+    public boolean isAuthenticated() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || AnonymousAuthenticationToken.class.isAssignableFrom(authentication.getClass())) {
+            return false;
+        }
+        return authentication.isAuthenticated();
+    }
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken authenticationToken = 
-                    new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
+    public void autoLogin(String username, String password) {
+        try {
+            User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            
+            if (!user.isEnabled()) {
+                throw new EmailNotVerifiedException("Email address not verified");
+            }
 
-                authenticationManager.authenticate(authenticationToken);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            UsernamePasswordAuthenticationToken authenticationToken = 
+                new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
 
-                if (authenticationToken.isAuthenticated()){
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    logger.debug("Auto login {} successfully!", username);
-                }
+            authenticationManager.authenticate(authenticationToken);
+
+            if (authenticationToken.isAuthenticated()) {
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                logger.debug("Auto login {} successfully!", username);
+            }
         } catch (EmailNotVerifiedException e) {
             logger.warn("Login attempt for unverified user: {}", username);
             throw e;
-        } catch (BadCredentialsException e){
+        } catch (BadCredentialsException e) {
             logger.warn("Bad credentials for user: {}", username);
             throw e;
         }
     }
 
-    public boolean isAuthenticated() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || AnonymousAuthenticationToken.class.isAssignableFrom(authentication.getClass()))
-            return false;
-
-        return authentication.isAuthenticated();
-    }
-
     public static class EmailNotVerifiedException extends RuntimeException {
-        public EmailNotVerifiedException(String message){
+        public EmailNotVerifiedException(String message) {
             super(message);
         }
     }

@@ -13,6 +13,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.cpt202.dailyreadingtracker.user.User;
 import com.cpt202.dailyreadingtracker.user.UserRepository;
+import com.cpt202.dailyreadingtracker.utils.EmailService;
+import com.cpt202.dailyreadingtracker.violationlog.ViolationLog;
+import com.cpt202.dailyreadingtracker.violationlog.ViolationLogRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -21,9 +24,11 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class ReadingLogService {
-    
+
     private final ReadingLogRepository readingLogRepository;
     private final UserRepository userRepository;
+    private final ViolationLogRepository violationLogRepository;
+    private final EmailService emailService;
 
     @Transactional
     public ReadingLog createLog(Long userId, ReadingLogDto dto) {
@@ -64,6 +69,17 @@ public class ReadingLogService {
         return readingLogRepository.save(log);
     }
 
+    public List<ReadingLogHistoryDto> getLogHistory(Long userId, String title, String author, Long currentLogId) {
+        String trimmedTitle = title.trim().toLowerCase();
+        String trimmedAuthor = author.trim().toLowerCase();
+
+        return readingLogRepository.findByUserIdAndTitleIgnoreCaseAndAuthorIgnoreCase(userId, trimmedTitle, trimmedAuthor)
+                                                        .stream()
+                                                        .sorted(Comparator.comparing(ReadingLog::getDate).reversed())
+                                                        .map(log -> new ReadingLogHistoryDto(log, currentLogId))
+                                                        .collect(Collectors.toList());
+    }
+
     @Transactional
     public void deleteLog(long userId, long logId) {
         ReadingLog log = readingLogRepository.findById(logId)
@@ -85,6 +101,13 @@ public class ReadingLogService {
         }
 
         readingLogRepository.delete(log);
+    }
+
+    public List<ReadingLog> getAllLogsByUser(Long userId) {
+        return readingLogRepository.findByUserId(userId)
+                .stream()
+                .sorted(Comparator.comparing(ReadingLog::getDate).reversed())
+                .collect(Collectors.toList());
     }
 
     public ReadingLog updateLog(Long userId, Long logId, ReadingLogDto dto) {
@@ -129,7 +152,38 @@ public class ReadingLogService {
         return readingLogRepository.save(log);
     }
 
-     public ReadingLog getLogById(Long userId, Long logId) {
+    @Transactional
+    public void deleteInappropriateLog(long userId, Long logId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+
+        String email = authentication.getName();
+
+        User admin = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, 
+                                                              "User not found with email: " + email));
+
+        boolean isAdmin = admin.getRoles().stream()
+                .anyMatch(role -> "ROLE_ADMIN".equals(role.getName()));
+                System.out.println("Your role: " + admin.getRoles());
+
+        if (!isAdmin) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can delete any user's logs!");
+        }
+
+        ReadingLog log = readingLogRepository.findById(logId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Reading log not found"));
+        ViolationLog violog = new ViolationLog(log); 
+
+        violationLogRepository.save(violog);
+        readingLogRepository.delete(log); 
+
+        emailService.sendViolationNotificationEmail(log.getUser().getEmail(), log);
+    }
+
+    public ReadingLog getLogById(Long userId, Long logId) {
         ReadingLog log = readingLogRepository.findById(logId)
                 .orElseThrow(() -> new IllegalArgumentException("Reading log not found"));
 
@@ -144,6 +198,10 @@ public class ReadingLogService {
         }
 
         return log;
+    }
+
+    public List<ReadingLog> getAllLogHistory(String title, String author) {
+            return readingLogRepository.findByTitleIgnoreCaseAndAuthorIgnoreCaseOrderByDateDesc(title, author);
     }
 
     private boolean isAdmin(Long userId) {
@@ -161,4 +219,5 @@ public class ReadingLogService {
 
         return user.getId();
     }
+    
 }
