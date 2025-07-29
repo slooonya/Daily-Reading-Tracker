@@ -51,7 +51,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
 
-    public class AccountFrozenException extends RuntimeException {
+    public static class AccountFrozenException extends RuntimeException {
         public AccountFrozenException(String message) {
             super(message);
         }
