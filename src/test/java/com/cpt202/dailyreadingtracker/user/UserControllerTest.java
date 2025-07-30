@@ -103,7 +103,7 @@ class UserControllerTest {
 
         String viewName = userController.getAdminProfilePage(model, mockPrincipal);
 
-        assertEquals("administration/admin-profile", viewName);
+        assertEquals("admin/admin-profile", viewName);
         verify(model).addAttribute("user", testUser);
         verify(model).addAttribute("imgHost", "http://localhost:8080");
     }

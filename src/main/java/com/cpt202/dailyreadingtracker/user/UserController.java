@@ -63,7 +63,7 @@ public class UserController {
             model.addAttribute("error", "Failed to load user profile");
         }
 
-        return "administration/admin-profile";
+        return "admin/admin-profile";
     }
 
     @PutMapping("/user-profile/{userId}/avatar")

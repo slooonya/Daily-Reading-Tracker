@@ -25,17 +25,17 @@ public class AdministrationController {
 
     @GetMapping("/account-frozen")
     public String getAccountFrozenPage() {
-        return "administration/account-frozen"; 
+        return "admin/account-frozen"; 
     }
 
     @GetMapping("/homeforadmin")
     public String getAdminHome() {
-        return "administration/homeforadmin";
+        return "admin/homeforadmin";
     }
 
     @GetMapping("/viologs")
     public String getViolationLogs() {
-        return "administration/violationlog";
+        return "admin/violationlog";
     }
 
     @GetMapping("/sorted_admin_userlist")
@@ -50,7 +50,7 @@ public class AdministrationController {
             m.addAttribute("sortField", sortField);
             m.addAttribute("sortDirection", sortDirection);
 
-            return "administration/admin-user-list";
+            return "admin/admin-user-list";
         }
 
     @PostMapping("/sorted_admin_userlist/users_freeze")

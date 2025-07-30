@@ -45,7 +45,7 @@ class AdministrationControllerTest {
     public void testGetAccountFrozenPage() throws Exception {
         mockMvc.perform(get("/account-frozen"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("administration/account-frozen"));
+                .andExpect(view().name("admin/account-frozen"));
     }
 
     // ADC_002
@@ -57,7 +57,7 @@ class AdministrationControllerTest {
         mockMvc.perform(get("/sorted_admin_userlist")
                         .principal(mockPrincipal))
                 .andExpect(status().isOk())
-                .andExpect(view().name("administration/admin-user-list"))
+                .andExpect(view().name("admin/admin-user-list"))
                 .andExpect(model().attribute("users", mockUsers))
                 .andExpect(model().attribute("sortField", "id"))
                 .andExpect(model().attribute("sortDirection", "asc"));
