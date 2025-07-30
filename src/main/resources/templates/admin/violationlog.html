@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Users Reading Logs</title>
+  <title>Violation Logs - Admin</title>
   <meta name="_csrf" th:content="${_csrf.token}"/>
   <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
   <script src="https://kit.fontawesome.com/68959b25ab.js" crossorigin="anonymous"></script>
@@ -63,12 +63,11 @@
   <div class="container">
     <header>
       <div class="header-top">
-        <h1>Users Reading Logs</h1>
+        <h1>Violation Logs</h1>
       </div>
-      
       <div class="toolbar">
         <div class="search-box">
-          <input type="text" id="search" placeholder="Search by title, author, or notes">
+          <input type="text" id="search" placeholder="Search violations by title, author, or notes">
           <button id="searchBtn" class="btn-icon"><i class="fas fa-search"></i></button>
         </div>
 
@@ -236,32 +235,39 @@
     <div class="modal" id="detailModal">
       <div class="modal-content">
         <div class="modal-header">
-          <div class="header-icon">
-            <i class="fas fa-scroll"></i>
-          </div>
-          <h2>Reading Log Details</h2>
+          <h2> Violation Details</h2>
           <button class="modal-close">&times;</button>
         </div>
         
         <div class="modal-body">
           <div class="detail-grid">
-            <div class="detail-item featured">
-              <div class="detail-icon">
-                <i class="fas fa-book"></i>
+            <div class="detail-item">
+              <div class="detail-icon danger-icon">
+                <i class="fas fa-fingerprint"></i>
               </div>
               <div class="detail-info">
-                <div class="detail-label">Book Title</div>
-                <div class="detail-value" id="detailTitle"></div>
+                <div class="detail-label">Log ID</div>
+                <div class="detail-value" id="detailId"></div>
               </div>
             </div>
-
+            
             <div class="detail-item">
               <div class="detail-icon">
-                <i class="fas fa-user-circle"></i>
+                <i class="fas fa-user-shield"></i>
               </div>
               <div class="detail-info">
                 <div class="detail-label">User</div>
                 <div class="detail-value" id="detailUser"></div>
+              </div>
+            </div>
+            
+            <div class="detail-item">
+              <div class="detail-icon">
+                <i class="fas fa-book"></i>
+              </div>
+              <div class="detail-info">
+                <div class="detail-label">Title</div>
+                <div class="detail-value" id="detailTitleText"></div>
               </div>
             </div>
             
@@ -277,96 +283,60 @@
             
             <div class="detail-item">
               <div class="detail-icon">
-                <i class="fas fa-calendar-plus"></i>
+                <i class="fas fa-calendar-times"></i>
               </div>
               <div class="detail-info">
-                <div class="detail-label">Date Created</div>
+                <div class="detail-label">Date</div>
                 <div class="detail-value" id="detailDate"></div>
               </div>
             </div>
             
             <div class="detail-item">
               <div class="detail-icon">
-                <i class="fas fa-hourglass-half"></i>
+                <i class="fas fa-stopwatch"></i>
               </div>
               <div class="detail-info">
                 <div class="detail-label">Time Spent</div>
                 <div class="detail-value" id="detailTime"> minutes</div>
               </div>
             </div>
-            
-            <div class="detail-item">
-              <div class="detail-icon">
-                <i class="fas fa-bookmark"></i>
-              </div>
-              <div class="detail-info">
-                <div class="detail-label">Current Page</div>
-                <div class="detail-value" id="detailCurrentPage"></div>
-              </div>
-            </div>
-            
-            <div class="detail-item">
-              <div class="detail-icon">
-                <i class="fas fa-book"></i>
-              </div>
-              <div class="detail-info">
-                <div class="detail-label">Total Pages</div>
-                <div class="detail-value" id="detailTotalPages"></div>
-              </div>
-            </div>
-            
-            <div class="detail-item">
-              <div class="detail-icon">
-                <i class="fas fa-chart-line"></i>
-              </div>
-              <div class="detail-info">
-                <div class="detail-label">Progress</div>
-                <div class="detail-value" id="detailProgress"></div>
-              </div>
-            </div>
           </div>
           
-          <div class="notes-section">
-            <div class="notes-header">
-              <i class="fas fa-sticky-note"></i>
-              <h3>Notes</h3>
+          <div class="violation-section">
+            <div class="section-header">
+              <i class="fas fa-exclamation-circle"></i>
+              <h3>Violation Details</h3>
             </div>
-            <div class="notes-content" id="detailNotes"></div>
+            <div class="violation-content" id="detailNotes"></div>
           </div>
         </div>
-        
+      </div>
+    </div>
+
+    <div class="modal" id="confirmationModal">
+      <div class="modal-content small-modal">
+        <div class="modal-header">
+          <i class="fas fa-exclamation-circle fa-2x"></i>
+          <h2 id="confirmationTitle">Confirm Action</h2>
+          <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p id="confirmationMessage">Are you sure you want to perform this action?</p>
+        </div>
         <div class="modal-actions">
-          <button id="deleteLogBtn" class="btn danger">
-            <i class="fas fa-trash"></i> Delete Log
+          <button id="confirmActionBtn" class="btn danger">
+            <i class="fas fa-check"></i> Confirm
+          </button>
+          
+          <button id="confirmCancelBtn" class="btn secondary">
+            <i class="fas fa-times"></i> Cancel
           </button>
         </div>
       </div>
     </div>
-  </div>
-
-  <div class="modal" id="confirmationModal">
-    <div class="modal-content small-modal">
-      <div class="modal-header">
-        <i class="fas fa-exclamation-circle fa-2x"></i>
-        <h2 id="confirmationTitle">Confirm Action</h2>
-        <button class="modal-close">&times;</button>
-      </div>
-      <div class="modal-body">
-        <p id="confirmationMessage">Are you sure you want to perform this action?</p>
-      </div>
-      <div class="modal-actions">
-        <button id="confirmActionBtn" class="btn danger">
-          <i class="fas fa-check"></i> Confirm
-        </button>
-        <button id="confirmCancelBtn" class="btn secondary">
-          <i class="fas fa-times"></i> Cancel
-        </button>
-      </div>
-    </div>
-  </div>
 </main>
 <div id="toastContainer" class="toast-container"></div>
 
-<script th:src="@{/js/admin/homeforadmin.js}"></script>
+<script th:src="@{/js/admin/violationlog.js}"></script>
 </body>
 </html>

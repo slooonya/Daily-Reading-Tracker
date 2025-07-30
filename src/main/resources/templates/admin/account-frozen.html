@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error</title>
+    <script src="https://kit.fontawesome.com/68959b25ab.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" th:href="@{/css/auth/auth-style.css}" />
+</head>
+<body>
+    <div class="container">
+        <div class="forms-container">
+            <div class="auth-forms">
+                <div class="auth-form">
+                    <div class="error-container">
+                        <div class="error-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+
+                        <h2 class="title">Access Denied!</h2>
+
+                        <div class="alert alert-danger">
+                            <p th:text="${error} ?: 'Your Account Has Been Frozen Due To Disobeying Our Policy !'"></p>
+                        </div>
+
+                        <th:block th:if="${error == 'Link already expired, resend link'}">
+                            <form th:action="@{/forgot-password/resend}" method="post" class="resend-form">
+                                <input type="hidden" name="email" th:value="${param.email[0]}">
+                                <button type="submit" class="btn resend-btn">
+                                    <i class="fas fa-redo"></i> Resend Reset Link
+                                </button>
+                            </form>
+                        </th:block>
+
+                        <div class="back-action">
+                            <a th:href="@{/auth}" class="account-link">
+                                <i class="fas fa-arrow-left"></i> Go Back
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panels-container">
+            <div class="panel left-panel error-help">
+                <div class="content">
+                    <h3>Need help?</h3>
+                    <p>Contact support for further information and resolving this issue</p>
+                </div>
+                <img th:src="@{/images/error.png}" class="image" alt="Help illustration">
+            </div>
+        </div>   
+    </div>
+
+    <script>
+        document.querySelector('.btn.transparent').addEventListener('click', function(e) {
+            if (window.history.length > 1) {
+                e.preventDefault();
+                window.history.back();
+            }
+        });
+    </script>
+</body>
+</html>

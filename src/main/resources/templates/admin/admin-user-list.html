@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Management - Admin Dashboard</title>
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+  <script src="https://kit.fontawesome.com/68959b25ab.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" th:href="@{/css/readinglog/home.css}"/>
+  <link rel="stylesheet" th:href="@{/css/admin/admin-user-list.css}"/>
+</head>
+<body>
+<nav class="navbar">
+  <ul class="navbar-nav">
+    <li class="logo">
+      <a href="/homeforadmin" class="nav-link">
+        <i class="fas fa-book-open fa-2x"></i>
+        <span class="link-text logo-text">ReadQuest</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a href="/homeforadmin" class="nav-link">
+        <i class="fas fa-home fa-2x"></i>
+        <span class="link-text">All Logs</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a href="/viologs" class="nav-link">
+        <i class="fas fa-exclamation-triangle fa-2x"></i>
+        <span class="link-text">Violations</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a href="/sorted_admin_userlist" class="nav-link">
+        <i class="fas fa-users fa-2x"></i>
+        <span class="link-text">User List</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a href="/admin-profile" class="nav-link">
+        <i class="fas fa-user fa-2x"></i>
+        <span class="link-text">Profile</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <form id="logoutForm" th:action="@{/logout}" method="POST" class="nav-form">
+        <button type="submit" class="nav-link">
+          <i class="fas fa-sign-out-alt fa-2x"></i>
+          <span class="link-text">Logout</span>
+        </button>
+      </form>
+    </li>
+  </ul>
+</nav>
+
+<main>
+  <div class="container">
+    <header>
+      <div class="header-top">
+        <h1>User Management</h1>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <div class="search-container">
+        <form method="GET" th:action="@{/sorted_admin_userlist}" class="search-box">
+          <div class="search-group">
+            <input type="text" name="searchQuery" th:value="${searchQuery}" 
+                   placeholder="Search users..." class="search-input">
+            <button type="submit" class="btn search-btn">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="sort-options">
+        <form method="GET" th:action="@{/sorted_admin_userlist}" class="filter-controls">
+          <div class="filter-group">
+            <label for="sortField">Sort Field:</label>
+            <select id="sortField" name="sortField" class="form-select">
+              <option value="id" th:selected="${sortField == 'id'}">ID</option>
+              <option value="username" th:selected="${sortField == 'username'}">Username</option>
+              <option value="email" th:selected="${sortField == 'email'}">Email</option>
+              <option value="isFreezed" th:selected="${sortField == 'isFreezed'}">Account Status</option>
+              <option value="recentlyFlagged" th:selected="${sortField == 'recentlyFlagged'}">Recently Flagged</option>
+              <option value="roles" th:selected="${sortField == 'roles'}">Role</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label for="sortDirection">Sort Direction:</label>
+            <select id="sortDirection" name="sortDirection" class="form-select">
+              <option value="asc" th:selected="${sortDirection == 'asc'}">Ascending</option>
+              <option value="desc" th:selected="${sortDirection == 'desc'}">Descending</option>
+            </select>
+          </div>
+          
+          <button type="submit" class="btn">
+            <i class="fas fa-sort"></i> Apply
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="user-management-content">
+      <form method="POST" th:action="@{/sorted_admin_userlist/users_freeze}" th:if="${not #lists.isEmpty(users)}">
+        <div class="user-table-container">
+          <table class="user-table">
+            <thead>
+              <tr>
+                <th class="checkbox-cell">Select</th>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Flagged</th>
+                <th>Role</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="user : ${users}">
+                <td class="checkbox-cell">
+                  <input type="checkbox" name="selectedUsers" th:value="${user.id}">
+                </td>
+                <td th:text="${user.id}"></td>
+                <td th:text="${user.username}"></td>
+                <td th:text="${user.email}"></td>
+                <td>
+                  <span th:if="${user.isFreezed}" class="status-badge frozen">
+                    <i class="fas fa-lock"></i> Frozen
+                  </span>
+
+                  <span th:unless="${user.isFreezed}" class="status-badge active">
+                    <i class="fas fa-check-circle"></i> Active
+                  </span>
+                </td>
+                <td>
+                  <span th:if="${user.recentlyFlagged}" class="status-badge flagged">
+                    <i class="fas fa-flag"></i> Yes
+                  </span>
+
+                  <span th:unless="${user.recentlyFlagged}" class="status-badge">
+                    <i class="fas fa-close"></i> No
+                  </span>
+                </td>
+                <td>
+                  <span th:each="role,iterStat : ${user.roles}">
+                    <span th:if="${role.name == 'ROLE_ADMIN'}" class="role-badge admin">
+                      <i class="fas fa-shield-alt"></i> Admin
+                    </span>
+
+                    <span th:if="${role.name == 'ROLE_USER'}" class="role-badge user">
+                      <i class="fas fa-user"></i> User
+                    </span>
+                  </span>
+                  <span th:if="${user.roles == null || user.roles.isEmpty()}" class="role-badge">
+                    <i class="fas fa-question-circle"></i> None
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" formaction="/sorted_admin_userlist/users_freeze" class="btn danger">
+            <i class="fas fa-lock"></i> Freeze Selected
+          </button>
+
+          <button type="submit" formaction="/sorted_admin_userlist/users_unfreeze" class="btn">
+            <i class="fas fa-unlock"></i> Unfreeze Selected
+          </button>
+
+          <button type="submit" formaction="/sorted_admin_userlist/promote_to_admin" class="btn">
+            <i class="fas fa-level-up-alt"></i> Promote to Admin
+          </button>
+
+          <button type="submit" formaction="/sorted_admin_userlist/demote_from_admin" class="btn transparent">
+            <i class="fas fa-level-down-alt"></i> Demote to User
+          </button>
+        </div>
+      </form>
+
+      <div class="empty-state" th:if="${#lists.isEmpty(users)}">
+        <i class="fas fa-users-slash fa-3x"></i>
+        <h3>No Users Found</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="confirmationModal">
+    <div class="modal-content small-modal">
+      <div class="modal-header">
+        <i class="fas fa-exclamation-circle fa-2x"></i>
+        <h2 id="confirmationTitle">Confirm Action</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p id="confirmationMessage">Are you sure you want to perform this action?</p>
+      </div>
+
+      <div class="modal-actions">
+        <button id="confirmActionBtn" class="btn danger">
+          <i class="fas fa-check"></i> Confirm
+        </button>
+        
+        <button id="confirmCancelBtn" class="btn secondary">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+<div id="toastContainer" class="toast-container"></div>
+
+<script th:src="@{/js/admin/admin-user-list.js}"></script>
+</body>
+</html>
