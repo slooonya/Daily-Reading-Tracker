@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <script src="https://kit.fontawesome.com/68959b25ab.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" th:href="@{/css/readinglog/home.css}" />
+    <link rel="stylesheet" th:href="@{/css/readinglog/profile.css}"/>
+</head>
+
+<body>
+    <nav class="navbar">
+        <ul class="navbar-nav">
+            <li class="logo">
+                <a href="/home" class="nav-link">
+                    <i class="fas fa-book-open fa-2x"></i>
+                    <span class="link-text logo-text">ReadQuest</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="/home" class="nav-link">
+                    <i class="fas fa-home fa-2x"></i>
+                    <span class="link-text">Home</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="/progress" class="nav-link">
+                    <i class="fas fa-chart-line fa-2x"></i>
+                    <span class="link-text">Progress</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="/profile" class="nav-link">
+                    <i class="fas fa-user fa-2x"></i>
+                    <span class="link-text">Profile</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <form id="logoutForm" th:action="@{/logout}" method="POST" class="nav-form">
+                    <button type="submit" class="nav-link">
+                        <i class="fas fa-sign-out-alt fa-2x"></i>
+                        <span class="link-text">Logout</span>
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+
+    <main>
+        <div class="container">
+            <header>
+                <div class="header-top">
+                    <h1>My Profile</h1>
+                    <div class="header-actions">
+                        <a href="/home" class="back-btn">
+                            <i class="fas fa-arrow-left"></i>Back Home
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <div class="profile">
+                <div id="loading">loading...</div>
+                <input type="hidden" id="userId" th:value="${user.id}">
+                <input type="hidden" id="imgHost" th:value="${imgHost}">
+                
+                
+                <div class="profile-info">
+                    <img id="avatar" th:src="${imgHost + (user?.avatarFileName ?: '/images/default.png')}" 
+                        alt="User Avatar">
+                    <p><strong>Username: </strong><span id="username"
+                            th:text="${user?.username ?: 'Default User'}"></span></p>
+                    <p><strong>Email: </strong><span id="email" th:text="${user?.email}"></span></p>
+                    <p><strong>Signature: </strong><span id="signature"
+                            th:text="${user?.signature ?: 'No signature'}"></span></p>
+                </div>
+
+                <div class="edit-section">
+                    <h2>Edit information</h2>
+                    <form id="editForm">
+                        <div class="form-group file-input-container">
+                            <input type="file" id="editAvatarFile" accept=".jpeg, .png" style="display: none;">
+                            <label for="editAvatarFile">
+                                <i class="fas fa-camera fa-2x"></i>
+                                <span>Click to upload new avatar</span>
+                                <small>(JPEG or PNG only)</small>
+                            </label>
+                          </div>
+                        
+                        <div class="form-group">
+                            <label for="editUsername">Username</label>
+                            <input type="text" id="editUsername" placeholder="Enter a new username (up to 20 characters)"
+                                th:value="${user?.username}"  minlength="4" maxlength="20">
+                            <small class="error-message" id="usernameError"></small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editSignature">Signature</label>
+                            <input type="text" id="editSignature" placeholder="Enter a new signature (up to 300 characters)"
+                                th:value="${user?.signature}" maxlength="300">
+                            <small class="error-message" id="signatureError"></small>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="save-btn">Save Changes</button>
+                        </div>
+                    </form>
+                    
+                    <div class="edit-section">
+                    <h2>Change Password</h2>
+                    <form id="changePasswordForm">
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" placeholder="Enter your current password">
+                            <small class="error-message" id="currentPasswordError"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" placeholder="8-64 characters, at least 1 uppercase, 1 lowercase, and 1 number">
+                            <small class="error-message" id="newPasswordError" style="display: none;">
+                                Password must be 8-64 characters with at least 1 uppercase, 1 lowercase, and 1 number
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm New Password</label>
+                            <input type="password" id="confirmPassword" placeholder="Enter your new password once again">
+                            <small class="error-message" id="confirmPasswordError"></small>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="save-btn">Change Password</button>
+                        </div>
+                    </div>
+                    </form>
+                    <div id="errorMessage"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div id="toastContainer"></div>
+
+    <script th:src="@{/js/readinglog/profile.js}"></script>
+</body>
+
+</html>
