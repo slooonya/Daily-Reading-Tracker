@@ -10,7 +10,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-// Controller handling main application pages and general error handling.
+/**
+ * Controller responsible for general application navigation and error handling.
+ * <p>
+ * Provides endpoints for:
+ * <ul>
+ *     <li>Rendering the home page</li>
+ *     <li>Displaying the error page</li>
+ * </ul>
+ * <p>
+ */
 
 @Controller
 @RequiredArgsConstructor

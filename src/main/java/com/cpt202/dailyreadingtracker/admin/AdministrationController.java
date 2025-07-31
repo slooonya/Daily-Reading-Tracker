@@ -17,6 +17,19 @@ import com.cpt202.dailyreadingtracker.user.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Controller responsible for managing administrative tasks.
+ * <p>
+ * Provides endpoints for:
+ * <ul>
+ *     <li>Viewing administrative pages such as account frozen, admin home, and violation logs</li>
+ *     <li>Sorting and displaying user lists</li>
+ *     <li>Freezing and unfreezing user accounts</li>
+ *     <li>Promoting and demoting users to/from admin roles</li>
+ * </ul>
+ * <p>
+ */
+
 @Controller
 @RequiredArgsConstructor
 public class AdministrationController {
