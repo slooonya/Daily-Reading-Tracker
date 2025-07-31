@@ -17,6 +17,16 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Service responsible for managing violation logs, which track flagged reading logs for policy violations.
+ * <ul>
+ *     <li>Create violation logs</li>
+ *     <li>Restore flagged logs back to the reading logs</li>
+ *     <li>Update violation logs</li>
+ *     <li>Retrieve violation logs</li>
+ * </ul>
+ */
+
 @Service 
 @RequiredArgsConstructor
 public class ViolationLogService {
@@ -25,6 +35,13 @@ public class ViolationLogService {
     private final ViolationLogRepository violationLogRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Creates a new violation log for a user.
+     *
+     * @param userId the ID of the user associated with the violation log
+     * @param dto    the data transfer object containing violation log details
+     * @return the created violation log
+     */
     public ViolationLog createLog(Long userId, ViolationLogDto dto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
@@ -38,6 +55,14 @@ public class ViolationLogService {
         return violationLogRepository.save(log);
     }
 
+    /**
+     * Restores a flagged violation log back to the reading logs.
+     * Only admins are authorized to perform this action.
+     *
+     * @param userId the ID of the admin performing the action
+     * @param logId  the ID of the violation log to restore
+     * @throws ResponseStatusException if the user is unauthorized or the log does not exist
+     */
     @Transactional
     public void restoreViolationLog(long userId, Long logId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -79,6 +104,13 @@ public class ViolationLogService {
         violationLogRepository.delete(violog);
     }
 
+    /**
+     * Checks whether a user has the "ROLE_ADMIN" role.
+     *
+     * @param userId the ID of the user to check
+     * @return {@code true} if the user has the "ROLE_ADMIN" role, {@code false} otherwise
+     * @throws EntityNotFoundException if the user does not exist
+     */
     private boolean isAdmin(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
@@ -87,6 +119,17 @@ public class ViolationLogService {
                 .anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
     }
 
+    /**
+     * Updates the details of a violation log.
+     * Only admins or the owner of the log are authorized to perform this action.
+     *
+     * @param userId the ID of the user attempting to update the log
+     * @param logId  the ID of the violation log to update
+     * @param dto    the data transfer object containing updated log details
+     * @return the updated violation log
+     * @throws SecurityException if the user is unauthorized
+     * @throws ResponseStatusException if there is a mismatch in page count
+     */
     @Transactional
     public ViolationLog updateLog(Long userId, Long logId, ViolationLogDto dto) {
         ViolationLog log = violationLogRepository.findById(logId)
@@ -128,6 +171,15 @@ public class ViolationLogService {
         return violationLogRepository.save(log); 
     }
 
+    /**
+     * Retrieves a violation log by its ID.
+     * Only admins are authorized to access violation logs.
+     *
+     * @param userId the ID of the user attempting to access the log
+     * @param logId  the ID of the violation log to retrieve
+     * @return the violation log
+     * @throws SecurityException if the user is unauthorized
+     */
     public ViolationLog getLogById(Long userId, Long logId) {
         ViolationLog log = violationLogRepository.findById(logId)
                 .orElseThrow(() -> new IllegalArgumentException("Violation log not found"));
