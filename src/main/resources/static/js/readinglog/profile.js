@@ -56,7 +56,7 @@ document.getElementById('editForm').addEventListener('submit', async function (e
     showError('');
 
     const username = document.getElementById('editUsername').value.trim();
-    const signature = document.getElementById('editSignature').value.trim();
+    const aboutMe = document.getElementById('editAboutMe').value.trim();
 
     if (username.length < 4 || username.length > 20) {
         showToast('Username must be 4-20 characters', 'error');
@@ -72,7 +72,7 @@ document.getElementById('editForm').addEventListener('submit', async function (e
             },
             body: JSON.stringify({
                 username: username,
-                signature: signature
+                aboutMe: aboutMe
             })
         });
         
@@ -91,8 +91,8 @@ document.getElementById('editForm').addEventListener('submit', async function (e
         document.getElementById('editUsername').value = data.username;
         document.getElementById('editUsername').classList.remove('is-invalid');
         document.getElementById('usernameError').style.display = 'none';
-        document.getElementById('signature').textContent = data.signature || 'No signature';
-        document.getElementById('editSignature').value = data.signature || '';
+        document.getElementById('aboutMe').textContent = data.aboutMe || 'No about me';
+        document.getElementById('editAboutMe').value = data.aboutMe || '';
         
         showToast('Profile updated successfully!', 'success');
     } catch (error) {
@@ -219,10 +219,10 @@ function showToast(message, type = 'info', duration = 3000) {
 
 function initializeFormFields() {
     const username = document.getElementById('username').textContent;
-    const signature = document.getElementById('signature').textContent;
+    const aboutMe = document.getElementById('aboutMe').textContent;
     
     document.getElementById('editUsername').value = username;
-    document.getElementById('editSignature').value = signature === 'No signature' ? '' : signature;
+    document.getElementById('editAboutMe').value = aboutMe === 'No about me' ? '' : aboutMe;
 }
 
 document.querySelectorAll('input').forEach(input => {
