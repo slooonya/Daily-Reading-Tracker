@@ -14,10 +14,19 @@ import com.cpt202.dailyreadingtracker.utils.JWTTokenUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
-// Service handling email verification token operations.
+/**
+ * Service responsible for handling email verification functionality.
+ * <ul>
+ *     <li>Creating email verification tokens</li>
+ *     <li>Validating email verification tokens</li>
+ *     <li>Sending email verification links</li>
+ * </ul>
+ */
 
 @Service
+@RequiredArgsConstructor
 public class VerificationService {
 
     private final VerificationTokenRepository verificationTokenRepository;
@@ -26,15 +35,13 @@ public class VerificationService {
     private final EmailService emailService;
 
     private static final Logger logger = LoggerFactory.getLogger(VerificationService.class);
-
-    public VerificationService(VerificationTokenRepository verificationTokenRepository, UserRepository userRepository,
-                               JWTTokenUtil jwtTokenUtil, EmailService emailService){
-        this.verificationTokenRepository = verificationTokenRepository;
-        this.userRepository = userRepository;
-        this.jwtTokenUtil = jwtTokenUtil;
-        this.emailService = emailService;
-    }
     
+    /**
+     * Verifies an email using the provided token.
+     *
+     * @param tokenValue the token value to validate
+     * @return a response entity indicating the result of the verification process
+     */
     @Transactional
     public ResponseEntity<String> verifyEmail(String tokenValue) {
         try {
@@ -56,6 +63,11 @@ public class VerificationService {
         }
     }
 
+    /**
+     * Validates the verification token.
+     *
+     * @param token the token to validate
+     */
     private void validateToken(VerificationToken token){
         if (token.getStatus().equals(VerificationToken.STATUS_VERIFIED))
             throw new IllegalArgumentException("Email already verified");
@@ -66,12 +78,24 @@ public class VerificationService {
         }
     }
 
+    /**
+     * Retrieves the email address associated with a given token.
+     *
+     * @param tokenValue the token value to look up
+     * @return the email address associated with the token, or null if not found
+     */
     public String getEmailFromToken(String tokenValue) {
         return verificationTokenRepository.findByToken(tokenValue)
             .map(token -> token.getUser().getEmail())
             .orElse(null);
     }
 
+    /**
+     * Creates a new email verification token for the specified email address.
+     *
+     * @param email   the email address to verify
+     * @param request the HTTP request object for generating the verification link
+     */
     @Transactional
     public void createVerification(String email, HttpServletRequest request){
         User user = userRepository.findByEmail(email)
@@ -92,6 +116,13 @@ public class VerificationService {
         emailService.sendVerificationEmail(user, verificationUrl); 
     }
 
+    /**
+     * Generates an email verification URL using the provided token and HTTP request.
+     *
+     * @param request the HTTP request object
+     * @param token   the verification token
+     * @return the generated email verification URL
+     */
     private String generateVerificationUrl(HttpServletRequest request, String token){
         String baseUrl = request.getRequestURL().toString().replace(request.getServletPath(), "");
         return baseUrl + "/verify-email?token=" + token;

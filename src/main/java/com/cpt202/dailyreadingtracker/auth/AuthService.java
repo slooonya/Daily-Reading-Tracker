@@ -15,10 +15,20 @@ import com.cpt202.dailyreadingtracker.utils.FileStorageService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
-// Service implementation for authentication and user registration operations.
+/**
+ * Service responsible for user registration and authentication logic.
+ * <ul>
+ *     <li>Registers new users with optional avatar upload</li>
+ *     <li>Encodes passwords securely</li>
+ *     <li>Assigns roles to users based on their status (e.g., first user as admin)</li>
+ *     <li>Sends email verification for new accounts</li>
+ * </ul>
+ */
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
     private final VerificationService verificationService;
@@ -27,15 +37,16 @@ public class AuthService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder encoder;
     private final FileStorageService fileStorageService;
-
-    AuthService(UserRepository userRepository, BCryptPasswordEncoder encoder, FileStorageService fileStorageService, RoleRepository roleRepository, VerificationService verificationService) {
-        this.userRepository = userRepository;
-        this.encoder = encoder;
-        this.fileStorageService = fileStorageService;
-        this.roleRepository = roleRepository;
-        this.verificationService = verificationService;
-    }
     
+    /**
+     * Registers a new user, stores their avatar, assigns roles, and sends a verification email.
+     *
+     * @param user    the user object containing registration details
+     * @param avatar  the user's avatar file (optional)
+     * @param request the HTTP request object for generating verification links
+     * @throws RegistrationException if registration fails due to user existence, password mismatch, or other issues
+     * @throws EmailVerificationException if email verification fails
+     */
     @Transactional
     public void register(User user, MultipartFile avatar, HttpServletRequest request){
         try {
@@ -96,6 +107,9 @@ public class AuthService {
         }            
     }
 
+     /**
+     * Exception thrown when registration fails.
+     */
     public class RegistrationException extends RuntimeException{
         public RegistrationException(String message, Throwable cause){
             super(message, cause);
@@ -106,6 +120,9 @@ public class AuthService {
         }
     }
 
+    /**
+     * Exception thrown when email verification fails.
+     */
     public class EmailVerificationException extends RuntimeException {
         public EmailVerificationException(String message, Throwable cause){
             super(message, cause);

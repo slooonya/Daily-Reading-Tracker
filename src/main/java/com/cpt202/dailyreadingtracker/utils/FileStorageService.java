@@ -16,7 +16,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.annotation.PostConstruct;
 
-// Service for handling file storage operations, particularly user avatar images.
+/**
+ * Service responsible for handling file storage operations, including:
+ * <ul>
+ *     <li>Storing user avatar files</li>
+ *     <li>Validating file types and sizes</li>
+ *     <li>Loading stored avatar files</li>
+ *     <li>Deleting avatar files</li>
+ * </ul>
+ */
 
 @Service
 public class FileStorageService {
@@ -32,6 +40,9 @@ public class FileStorageService {
         this.storageBasePath = Paths.get(uploadDirectory).toAbsolutePath().normalize();
     }
 
+    /**
+     * Creates the upload directory if it does not already exist.
+     */
     @PostConstruct
     public void init(){
         try{
@@ -43,6 +54,12 @@ public class FileStorageService {
         }
     }
 
+    /**
+     * Validates the uploaded file for type and size constraints.
+     *
+     * @param file the file to validate
+     * @throws IOException if the file is invalid
+     */
     public void validateFile(MultipartFile file) throws IOException {
         String contentType = file.getContentType();
         String originalFilename = file.getOriginalFilename();
@@ -60,6 +77,14 @@ public class FileStorageService {
             throw new IOException("File size exceeds 5 MB");
     }
 
+    /**
+     * Stores the user's avatar file in the upload directory.
+     *
+     * @param file     the avatar file to store
+     * @param username the username of the user
+     * @return the filename of the stored avatar
+     * @throws IOException if the file cannot be stored
+     */
     public String storeAvatar(MultipartFile file, String username) throws IOException {
         if (file == null || file.isEmpty())
             return null;
@@ -79,15 +104,35 @@ public class FileStorageService {
         }
     }
 
+    /**
+     * Generates a unique filename for the uploaded file.
+     *
+     * @param file     the uploaded file
+     * @param username the username of the user
+     * @return the generated unique filename
+     */
     public String generateUniqueFilename(MultipartFile file, String username){
         String extension = file.getContentType().split("/")[1];
         return String.format("%s-avatar-%s.%s", formatFilename(username), UUID.randomUUID(), extension);
     }
 
+    /**
+     * Formats a filename by replacing invalid characters with underscores.
+     *
+     * @param filename the original filename
+     * @return the formatted filename
+     */
     public String formatFilename(String filename){
         return filename.replaceAll("[^a-zA-Z0-9.-]", "_");
     }
 
+    /**
+     * Loads the user's avatar file as a URL resource.
+     *
+     * @param filename the filename of the avatar
+     * @return the URL resource for the avatar
+     * @throws IOException if the file cannot be loaded
+     */
     public UrlResource loadAvatar(String filename) throws IOException{
         if (filename == null || filename.isBlank()){
             logger.debug("Requested empty filename for avatar");
@@ -109,6 +154,12 @@ public class FileStorageService {
         return resource;
     }
 
+    /**
+     * Deletes the user's avatar file from the storage directory.
+     *
+     * @param filename the filename of the avatar to delete
+     * @throws IOException if the file cannot be deleted
+     */
     public void deleteAvatar(String filename) throws IOException{
         if (filename == null || filename.isBlank())
             return;

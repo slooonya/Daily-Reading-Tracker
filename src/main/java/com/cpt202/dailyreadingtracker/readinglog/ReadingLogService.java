@@ -21,6 +21,16 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Service responsible for managing reading logs for users.
+ * <ul>
+ *     <li>Create, update, and delete reading logs</li>
+ *     <li>Retrieve reading log history and details</li>
+ *     <li>Handle log versioning to track changes over time</li>
+ *     <li>Allow admins to delete inappropriate logs</li>
+ * </ul>
+ */
+
 @Service
 @RequiredArgsConstructor
 public class ReadingLogService {
@@ -30,6 +40,14 @@ public class ReadingLogService {
     private final ViolationLogRepository violationLogRepository;
     private final EmailService emailService;
 
+    /**
+     * Creates a new reading log for a user.
+     * If a current log with the same title exists, it is marked as non-current.
+     *
+     * @param userId the ID of the user creating the log
+     * @param dto    the data transfer object containing log details
+     * @return the created reading log
+     */
     @Transactional
     public ReadingLog createLog(Long userId, ReadingLogDto dto) {
         User user = userRepository.findById(userId)
@@ -69,6 +87,15 @@ public class ReadingLogService {
         return readingLogRepository.save(log);
     }
 
+    /**
+     * Retrieves the history of reading logs for a specific book by a user.
+     *
+     * @param userId       the ID of the user
+     * @param title        the title of the book
+     * @param author       the author of the book
+     * @param currentLogId the ID of the current log (optional)
+     * @return a list of reading log history DTOs
+     */
     public List<ReadingLogHistoryDto> getLogHistory(Long userId, String title, String author, Long currentLogId) {
         String trimmedTitle = title.trim().toLowerCase();
         String trimmedAuthor = author.trim().toLowerCase();
@@ -80,6 +107,13 @@ public class ReadingLogService {
                                                         .collect(Collectors.toList());
     }
 
+    /**
+     * Deletes a reading log by its ID.
+     * Ensures that only the owner of the log or an admin can delete it.
+     *
+     * @param userId the ID of the user attempting to delete the log
+     * @param logId  the ID of the log to delete
+     */
     @Transactional
     public void deleteLog(long userId, long logId) {
         ReadingLog log = readingLogRepository.findById(logId)
@@ -103,6 +137,12 @@ public class ReadingLogService {
         readingLogRepository.delete(log);
     }
 
+    /**
+     * Retrieves all reading logs for a user, sorted by date in descending order.
+     *
+     * @param userId the ID of the user
+     * @return a list of reading logs
+     */
     public List<ReadingLog> getAllLogsByUser(Long userId) {
         return readingLogRepository.findByUserId(userId)
                 .stream()
@@ -110,6 +150,15 @@ public class ReadingLogService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Updates an existing reading log with new details.
+     * Ensures that only the owner of the log or an admin can update it.
+     *
+     * @param userId the ID of the user attempting to update the log
+     * @param logId  the ID of the log to update
+     * @param dto    the data transfer object containing updated log details
+     * @return the updated reading log
+     */
     public ReadingLog updateLog(Long userId, Long logId, ReadingLogDto dto) {
         ReadingLog log = readingLogRepository.findById(logId)
             .orElseThrow(() -> new IllegalArgumentException("Reading log not found"));
@@ -152,6 +201,13 @@ public class ReadingLogService {
         return readingLogRepository.save(log);
     }
 
+    /**
+     * Deletes an inappropriate reading log and records it in the violation log.
+     * Only admins are allowed to perform this action.
+     *
+     * @param userId the ID of the admin performing the action
+     * @param logId  the ID of the log to delete
+     */
     @Transactional
     public void deleteInappropriateLog(long userId, Long logId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -183,6 +239,14 @@ public class ReadingLogService {
         emailService.sendViolationNotificationEmail(log.getUser().getEmail(), log);
     }
 
+    /**
+     * Retrieves a specific reading log by its ID.
+     * Ensures that only the owner of the log or an admin can access it.
+     *
+     * @param userId the ID of the user attempting to access the log
+     * @param logId  the ID of the log to retrieve
+     * @return the reading log
+     */
     public ReadingLog getLogById(Long userId, Long logId) {
         ReadingLog log = readingLogRepository.findById(logId)
                 .orElseThrow(() -> new IllegalArgumentException("Reading log not found"));
@@ -200,10 +264,24 @@ public class ReadingLogService {
         return log;
     }
 
+    /**
+     * Retrieves the history of all logs for a specific book, sorted by date.
+     *
+     * @param title  the title of the book
+     * @param author the author of the book
+     * @return a list of reading logs for the specified book
+     */
     public List<ReadingLog> getAllLogHistory(String title, String author) {
             return readingLogRepository.findByTitleIgnoreCaseAndAuthorIgnoreCaseOrderByDateDesc(title, author);
     }
 
+    /**
+    * Checks whether a user has the "ROLE_ADMIN" role.
+    *
+    * @param userId the ID of the user to check
+    * @return {@code true} if the user has the "ROLE_ADMIN" role, {@code false} otherwise
+    * @throws EntityNotFoundException if the user does not exist
+    */
     private boolean isAdmin(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
@@ -212,6 +290,12 @@ public class ReadingLogService {
                 .anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
     }
 
+    /**
+     * Retrieves the user ID from the authenticated principal.
+     *
+     * @param principal the authenticated principal
+     * @return the user ID
+     */
     public Long getUserIdFromPrincipal(Principal principal) {
         String email = principal.getName(); 
         User user = userRepository.findByEmail(email)

@@ -16,9 +16,19 @@ import org.springframework.stereotype.Service;
 import com.cpt202.dailyreadingtracker.user.User;
 import com.cpt202.dailyreadingtracker.user.UserRepository;
 
-// Service for security operations (auth status verification, automatic login, user verification checks)
+import lombok.RequiredArgsConstructor;
+
+/**
+ * Service responsible for handling authentication and security-related functionality.
+ * <ul>
+ *     <li>Check if the current user is authenticated</li>
+ *     <li>Perform automatic login for a user</li>
+ *     <li>Handle email verification checks during login</li>
+ * </ul>
+ */
 
 @Service
+@RequiredArgsConstructor
 public class SecurityService {
     
     private final AuthenticationManager authenticationManager;
@@ -26,14 +36,11 @@ public class SecurityService {
     private final UserRepository userRepository;
     private static final Logger logger = LoggerFactory.getLogger(SecurityService.class);
 
-    public SecurityService(AuthenticationManager authenticationManager, 
-                         UserDetailsService userDetailsService,
-                         UserRepository userRepository) {
-        this.authenticationManager = authenticationManager;
-        this.userDetailsService = userDetailsService;
-        this.userRepository = userRepository;
-    }
-
+    /**
+     * Checks whether the current user is authenticated.
+     *
+     * @return {@code true} if the user is authenticated, {@code false} otherwise
+     */
     public boolean isAuthenticated() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || AnonymousAuthenticationToken.class.isAssignableFrom(authentication.getClass())) {
@@ -42,6 +49,15 @@ public class SecurityService {
         return authentication.isAuthenticated();
     }
 
+    /**
+     * Automatically logs in a user with the provided username and password.
+     * Ensures that the user's email is verified before allowing login.
+     *
+     * @param username the username of the user
+     * @param password the password of the user
+     * @throws EmailNotVerifiedException if the user's email is not verified
+     * @throws BadCredentialsException   if the username or password is incorrect
+     */
     public void autoLogin(String username, String password) {
         try {
             User user = userRepository.findByUsername(username)
@@ -70,6 +86,9 @@ public class SecurityService {
         }
     }
 
+    /**
+     * Exception thrown when a user attempts to log in without verifying their email address.
+     */
     public static class EmailNotVerifiedException extends RuntimeException {
         public EmailNotVerifiedException(String message) {
             super(message);

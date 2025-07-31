@@ -18,10 +18,21 @@ import com.cpt202.dailyreadingtracker.user.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 
-// Service for sending email messages for account verification, status update, and password reset, 
+/**
+ * Service responsible for sending various types of emails, including:
+ * <ul>
+ *     <li>Email verification</li>
+ *     <li>Password reset notifications</li>
+ *     <li>Account frozen notifications</li>
+ *     <li>Violation notifications</li>
+ *     <li>Password change confirmations</li>
+ * </ul>
+ */
 
 @Service
+@RequiredArgsConstructor
 public class EmailService {
 
     private final JavaMailSender mailSender;
@@ -32,10 +43,13 @@ public class EmailService {
     private final String senderName = "Daily Reading Tracker";
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
-    public EmailService(JavaMailSender mailSender){
-        this.mailSender = mailSender;
-    }
-
+    /**
+     * Sends an email verification message to the user.
+     *
+     * @param user            the user to whom the email is sent
+     * @param verificationUrl the URL for verifying the user's email
+     * @return {@code true} if the email was sent successfully, {@code false} otherwise
+     */
     public boolean sendVerificationEmail(User user, String verificationUrl){
         String subject = "Verify Your Email Address";
         String content = String.format("""
@@ -63,6 +77,12 @@ public class EmailService {
         }
     }
 
+    /**
+     * Sends a password reset email to the user.
+     *
+     * @param user the user to whom the email is sent
+     * @param url  the URL for resetting the user's password
+     */
     public void sendPasswordResetEmail(User user, String url) {
         String subject = "Password Reset Request";
         String content = String.format("""
@@ -86,6 +106,15 @@ public class EmailService {
         }
     }
 
+     /**
+     * Sends an HTML email to the specified recipient.
+     *
+     * @param to          the recipient's email address
+     * @param subject     the subject of the email
+     * @param htmlContent the HTML content of the email
+     * @throws MessagingException           if there is an error creating the email
+     * @throws UnsupportedEncodingException if the sender's name cannot be encoded
+     */
     public void sendHtmlEmail(String to, String subject, String htmlContent) throws MessagingException,
                                                                                     UnsupportedEncodingException{
         MimeMessage message = mailSender.createMimeMessage();
@@ -104,6 +133,12 @@ public class EmailService {
         }
     }
 
+    /**
+     * Sends an account frozen notification email to the user.
+     *
+     * @param user the user to whom the email is sent
+     * @return {@code true} if the email was sent successfully, {@code false} otherwise
+     */
     public boolean sendAccountFrozenEmail(User user){
         String subject = "Your Daily Reading Tracker Acount Has Been Frozen!";
         String content = String.format("""
@@ -133,6 +168,12 @@ public class EmailService {
         }
     }
 
+    /**
+     * Sends a violation notification email to the user, informing them about a flagged reading log.
+     *
+     * @param userEmail the email address of the user
+     * @param log       the flagged reading log
+     */
     public void sendViolationNotificationEmail(String userEmail, ReadingLog log) {
         try {
             String subject = "Notification: Your Reading Log Has Been Flagged";
@@ -175,6 +216,11 @@ public class EmailService {
         }
     }
 
+    /**
+     * Sends a password change confirmation email to the user.
+     *
+     * @param user the user to whom the email is sent
+     */
     public void sendPasswordChangeNotification(User user) {
         String subject = "Password Changed Successfully";
         String content = String.format("""
@@ -200,6 +246,9 @@ public class EmailService {
         }
     }
 
+    /**
+     * Exception thrown when an email fails to send.
+     */
     public class EmailException extends RuntimeException {
         public EmailException(String message, Throwable cause) {
             super(message, cause);
