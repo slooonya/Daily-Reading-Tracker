@@ -12,18 +12,40 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 
-// Controller handling email verification workflows including token clicks, status pages, email resends 
+/**
+ * Controller responsible for handling email verification functionality.
+ * <p>
+ * Provides endpoints for:
+ * <ul>
+ *     <li>Verifying user email addresses using tokens</li>
+ *     <li>Displaying verification error messages</li>
+ *     <li>Displaying a pending verification page</li>
+ *     <li>Resending verification emails</li>
+ * </ul>
+ * <p>
+ */
 
 @Controller
+@RequiredArgsConstructor
 public class VerificationController {
+
     private final VerificationService verificationService;
     private static final Logger logger = LoggerFactory.getLogger(VerificationController.class);
 
-    public VerificationController(VerificationService verificationService){
-        this.verificationService = verificationService;
-    }
-
+    /**
+     * Verifies a user's email address using a token.
+     * <p>
+     * If the token is valid, the user's email is marked as verified, and they are redirected to the login page.
+     * If the token is invalid or expired, an error message is displayed.
+     * </p>
+     *
+     * @param token              the email verification token
+     * @param model              the model for passing data to the view
+     * @param redirectAttributes attributes for redirecting with messages
+     * @return the redirect URL or view name based on the verification result
+     */
     @GetMapping("/verify-email")
     public String verifyEmail(@RequestParam String token, Model model, 
                               RedirectAttributes redirectAttributes) {

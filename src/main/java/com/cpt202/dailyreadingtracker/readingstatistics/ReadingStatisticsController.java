@@ -12,6 +12,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * REST controller responsible for providing reading statistics for users.
+ * <p>
+ * Provides endpoints for:
+ * <ul>
+ *     <li>Fetching overall reading statistics</li>
+ *     <li>Fetching statistics for specific time periods (e.g., daily, weekly, monthly)</li>
+ *     <li>Fetching statistics for custom date ranges</li>
+ * </ul>
+ * <p>
+ */
 
 @RestController
 @RequestMapping("/api/reading-statistics")

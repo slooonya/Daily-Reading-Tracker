@@ -14,16 +14,22 @@ import org.springframework.stereotype.Service;
 import com.cpt202.dailyreadingtracker.user.User;
 import com.cpt202.dailyreadingtracker.user.UserRepository;
 
-// Custom implementation of Spring Security's UserDetailsService for loading user-specific data.
+import lombok.RequiredArgsConstructor;
+
+/**
+ * Service responsible for loading user details for authentication purposes.
+ * <p>
+ * This service is a custom implementation of {@link UserDetailsService}, which integrates with the application's
+ * {@link UserRepository} to fetch user details based on their email address.
+ * </p>
+ * <p>
+ */
 
 @Service
+@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
     
     private final UserRepository userRepository;
-
-    public CustomUserDetailsService(UserRepository userRepository){
-        this.userRepository = userRepository;
-    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -45,12 +51,14 @@ public class CustomUserDetailsService implements UserDetailsService {
             true, true, true, authorities);
     }
 
+    // Exception thrown when a user attempts to authenticate with an unverified account.
     public class UnverifiedAccountException extends AuthenticationException {
         public UnverifiedAccountException(){
             super("Account not verified");
         }
     }
 
+    // Exception thrown when a user attempts to authenticate with a frozen account.
     public static class AccountFrozenException extends RuntimeException {
         public AccountFrozenException(String message) {
             super(message);

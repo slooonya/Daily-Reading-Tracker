@@ -25,6 +25,19 @@ import com.cpt202.dailyreadingtracker.user.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * REST controller responsible for managing violation logs.
+ * <p>
+ * Provides endpoints for:
+ * <ul>
+ *     <li>Retrieving all violation logs</li>
+ *     <li>Retrieving a specific violation log by ID</li>
+ *     <li>Creating, updating, and deleting violation logs</li>
+ *     <li>Filtering violation logs based on various criteria</li>
+ * </ul>
+ * <p>
+ */
+
 @RestController
 @RequestMapping("/getviologs")
 @RequiredArgsConstructor
@@ -155,4 +168,3 @@ public class ViolationLogController {
     }
     
 }
-

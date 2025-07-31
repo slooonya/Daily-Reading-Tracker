@@ -15,6 +15,16 @@ import com.cpt202.dailyreadingtracker.user.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Controller responsible for managing and displaying reading progress for users.
+ * <p>
+ * Provides endpoints for:
+ * <ul>
+ *     <li>Rendering the reading progress page with user-specific statistics</li>
+ *     <li>Providing book progress statistics as a JSON response</li>
+ * </ul>
+ * <p>
+ */
 
 @Controller
 @RequiredArgsConstructor

@@ -20,6 +20,18 @@ import org.springframework.web.server.ResponseStatusException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * REST controller responsible for managing reading logs for individual users.
+ * <p>
+ * This controller provides endpoints for:
+ * <ul>
+ *     <li>Retrieving all reading logs for the authenticated user</li>
+ *     <li>Creating, updating, and deleting reading logs for the authenticated user</li>
+ *     <li>Retrieving the history of reading logs for specific titles and authors</li>
+ * </ul>
+ * <p>
+ */
+
 @RestController
 @RequestMapping("/api/reading-logs")
 @RequiredArgsConstructor

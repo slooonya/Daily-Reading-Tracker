@@ -22,28 +22,33 @@ import com.cpt202.dailyreadingtracker.utils.FileStorageService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
-// Controller handling authentication-related operations including login, registration, and logout 
+/**
+ * Controller responsible for handling user authentication and registration.
+ * <p>
+ * Provides endpoints for:
+ * <ul>
+ *     <li>Rendering the authentication page (login and registration forms)</li>
+ *     <li>Processing user registration</li>
+ *     <li>Handling user login</li>
+ *     <li>Logging out users</li>
+ * </ul>
+ * <p>
+ */
 
 @Controller
+@RequiredArgsConstructor
 public class AuthController {
     
     private final AuthService authService;
     private final SecurityService securityService;
     private final UserRepository userRepository;
     private final FileStorageService fileStorageService;
-
-    public AuthController(AuthService authService, SecurityService securityService, 
-                        UserRepository userRepository, FileStorageService fileStorageService){
-        this.authService = authService;
-        this.securityService = securityService;
-        this.userRepository = userRepository;
-        this.fileStorageService = fileStorageService;
-    }
 
     @GetMapping("/auth")
     public String getAuthPage(Model model, @RequestParam(required = false) String error,
@@ -62,6 +67,28 @@ public class AuthController {
         return "auth/authentication";
     }
 
+    /**
+     * Processes user registration by validating input, saving the user, and optionally storing an avatar image.
+     * <p>
+     * Validation points:
+     * <ul>
+     *     <li>Checking if the username and email are unique</li>
+     *     <li>Ensuring that passwords match</li>
+     *     <li>Validating the uploaded avatar file (if provided)</li>
+     * </ul>
+     * <p>
+     * If validation fails, the user is redirected back to the registration form with error messages.
+     * On successful registration, the user is redirected to the verification pending page.
+     * </p>
+     *
+     * @param user                the user object containing registration details
+     * @param result              the binding result for validation errors
+     * @param avatar              the optional avatar file uploaded by the user
+     * @param request             the HTTP request object
+     * @param redirectAttributes  attributes for redirecting with messages
+     * @param model               the model for passing data to the view
+     * @return the name of the view to render or a redirect URL
+     */
     @PostMapping("/register")
     public String processRegistration(@Valid @ModelAttribute("user") User user, BindingResult result,
                                     @RequestParam(required = false) MultipartFile avatar, HttpServletRequest request, 

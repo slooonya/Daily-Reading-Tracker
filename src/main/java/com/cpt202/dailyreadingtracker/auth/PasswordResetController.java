@@ -11,17 +11,28 @@ import com.cpt202.dailyreadingtracker.security.SecurityService;
 
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+
+/**
+ * Controller responsible for handling password reset functionality.
+ * <p>
+ * Provides endpoints for:
+ * <ul>
+ *     <li>Displaying the "Forgot Password" form</li>
+ *     <li>Requesting a password reset link</li>
+ *     <li>Resending password reset links</li>
+ *     <li>Validating password reset tokens</li>
+ *     <li>Processing password reset requests</li>
+ * </ul>
+ * <p>
+ */
 
 @Controller
+@RequiredArgsConstructor
 public class PasswordResetController {
     
     private final PasswordResetService passwordResetService;
     private final SecurityService securityService;
-
-    public PasswordResetController(PasswordResetService passwordResetService, SecurityService securityService){
-        this.passwordResetService = passwordResetService;
-        this.securityService = securityService;
-    }
 
     @GetMapping("/forgot-password")
     public String showForgotPasswordForm(Model model){
@@ -31,6 +42,18 @@ public class PasswordResetController {
         return "auth/forgot-password";
     }
 
+    /**
+     * Handles password reset requests by generating a reset link and sending it to the user's email.
+     * <p>
+     * If the email is valid and associated with an account, a password reset link is sent.
+     * Otherwise, a generic success message is displayed to prevent information leakage.
+     * </p>
+     *
+     * @param email              the email address of the user requesting the reset
+     * @param request            the HTTP request object
+     * @param redirectAttributes attributes for redirecting with messages
+     * @return the redirect URL to the "Forgot Password" page
+     */
     @RateLimiter(name = "passwordResetLimiter")
     @PostMapping("/forgot-password")
     public String requestPasswordReset(@RequestParam String email, HttpServletRequest request,

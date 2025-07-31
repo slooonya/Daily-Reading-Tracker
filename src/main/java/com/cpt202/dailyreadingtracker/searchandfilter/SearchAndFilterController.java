@@ -17,6 +17,19 @@ import com.cpt202.dailyreadingtracker.readinglog.ReadingLogService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * REST controller responsible for searching and filtering reading logs.
+ * <p>
+ * Provides endpoints for:
+ * <ul>
+ *     <li>Searching logs by query</li>
+ *     <li>Filtering logs by date range</li>
+ *     <li>Filtering logs by time spent</li>
+ *     <li>Combining multiple filters for advanced querying</li>
+ * </ul>
+ * <p>
+ */
+
 @RestController
 @RequestMapping("/api/reading-logs")
 @RequiredArgsConstructor

@@ -26,6 +26,19 @@ import com.cpt202.dailyreadingtracker.user.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * REST controller responsible for managing reading logs across all users.
+ * <p>
+ * This controller provides endpoints for:
+ * <ul>
+ *     <li>Retrieving all reading logs for all users</li>
+ *     <li>Filtering logs based on various criteria</li>
+ *     <li>Creating, updating, and deleting reading logs for specific users</li>
+ *     <li>Retrieving the history of reading logs for specific titles and authors</li>
+ * </ul>
+ * <p>
+ */
+
 @RestController
 @RequestMapping("/sorted_loglist_allusers")
 @RequiredArgsConstructor

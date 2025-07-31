@@ -21,6 +21,19 @@ import com.cpt202.dailyreadingtracker.violationlog.ViolationLogRepository;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Controller responsible for managing user profiles and account settings.
+ * <p>
+ * Provides endpoints for:
+ * <ul>
+ *     <li>Viewing user and admin profile pages</li>
+ *     <li>Updating user avatars</li>
+ *     <li>Changing user passwords</li>
+ *     <li>Updating user profile details</li>
+ * </ul>
+ * <p>
+ */
+
 @Controller
 @RequiredArgsConstructor
 public class UserController {
