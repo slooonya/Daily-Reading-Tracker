@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Progress Tracker</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://kit.fontawesome.com/68959b25ab.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" th:href="@{/css/readinglog/home.css}">
+    <link rel="stylesheet" th:href="@{/css/readinglog/progress.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <ul class="navbar-nav">
+            <li class="logo">
+                <a href="/home" class="nav-link">
+                    <i class="fas fa-book-open fa-2x"></i>
+                    <span class="link-text logo-text">ReadQuest</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="/home" class="nav-link">
+                    <i class="fas fa-home fa-2x"></i>
+                    <span class="link-text">Home</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="/progress" class="nav-link">
+                    <i class="fas fa-chart-line fa-2x"></i>
+                    <span class="link-text">Progress</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="/profile" class="nav-link">
+                    <i class="fas fa-user fa-2x"></i>
+                    <span class="link-text">Profile</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <form id="logoutForm" th:action="@{/logout}" method="POST" class="nav-form">
+                    <button type="submit" class="nav-link">
+                        <i class="fas fa-sign-out-alt fa-2x"></i>
+                        <span class="link-text">Logout</span>
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+    
+    <main>
+        <div class="container">
+            <header>
+                <div class="header-top">
+                    <h1>Reading Progress</h1>
+                    <div class="header-actions">
+                        <a href="/home" class="button back-btn">
+                            <i class="fas fa-arrow-left"></i> Back to Logs
+                        </a>
+                    </div>
+                </div>
+            </header>
+    
+            <div class="progress-control-section">
+                <div class="progress-header">
+                <h2 class="section-title">Statistics</h2>
+                <div class="progress-controls">
+                    <select id="progressPeriod">
+                        <option value="total">All Time</option>
+                        <option value="last_week">Last Week</option>
+                        <option value="last_month">Last Month</option>
+                        <option value="last_three_months">Last 3 Months</option>
+                        <option value="last_year">Last Year</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                    <div id="customRangeContainer">
+                        <input type="date" id="customStartDate">
+                        <span>to</span>
+                        <input type="date" id="customEndDate">
+                        <button id="applyCustomRange">
+                            <i class="fas fa-check"></i> Apply
+                        </button>
+                    </div>
+                </div>
+            </div>
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <h3>Book Count</h3>
+                        <p id="statBookCount">0</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>Total Reading Time</h3>
+                        <p id="statTotalTime">0 minutes</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Daily Average time</h3>
+                        <p id="statAvgTime">0 minutes</p>
+                    </div>
+                </div>
+    
+                <div class="chart-container">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="books-progress-section">
+                <h2>Book Reading Progress</h2>
+                <div id="booksProgressContainer" class="books-progress-container">
+                    
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script th:src="@{/js/readinglog/progress.js}"></script>
+    </body>
+    </html>
