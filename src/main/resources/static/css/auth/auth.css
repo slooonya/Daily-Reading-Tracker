@@ -436,7 +436,7 @@ body, input {
     background-color: #5a242a;
 }
 
-.container.sing-up-mode:before {
+.container.sign-up-mode:before {
     transform: translate(100%, -50%);
     right: 52%;
 }
@@ -459,7 +459,7 @@ body, input {
     pointer-events: all;
 }
 
-.container.sing-up-mode .auth-forms {
+.container.sign-up-mode .auth-forms {
     left: 25%;
 }
 

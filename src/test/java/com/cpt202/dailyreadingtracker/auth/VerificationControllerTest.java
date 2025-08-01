@@ -93,7 +93,7 @@ class VerificationControllerTest {
         mockMvc.perform(post("/resend-verification")
                         .param("email", "user@test.com"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/verify-pending?resent=true&email=user%40test.com"));
+                .andExpect(redirectedUrl("/verification-pending?resent=true&email=user%40test.com"));
     }
 
     // VC_006

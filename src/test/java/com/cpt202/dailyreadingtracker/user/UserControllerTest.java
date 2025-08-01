@@ -1,6 +1,5 @@
 package com.cpt202.dailyreadingtracker.user;
 
-
 import com.cpt202.dailyreadingtracker.utils.FileStorageService;
 import com.cpt202.dailyreadingtracker.utils.EmailService;
 import com.cpt202.dailyreadingtracker.violationlog.ViolationLogRepository;

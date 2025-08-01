@@ -52,8 +52,8 @@ public class SecurityConfig {
                     "/verify-email**",
                     "/resend-verification",
                     "/resend-verification/**",
-                    "/verify-pending",
-                    "/verify-pending/**",
+                    "/verification-pending",
+                    "/verification-pending/**",
                     "/css/**",
                     "/js/**",
                     "/images/**",
@@ -118,7 +118,7 @@ public class SecurityConfig {
             
            if (exception instanceof InternalAuthenticationServiceException && 
             exception.getCause() instanceof CustomUserDetailsService.UnverifiedAccountException) {
-            redirectUrl = "/verify-pending?email=" + email;
+            redirectUrl = "/verification-pending?email=" + email;
             }
             else if (exception instanceof BadCredentialsException) {
                 redirectUrl = "/auth?error=true";

@@ -19,7 +19,7 @@ public class UserVo implements Serializable {
     private String avatarFileName;
     private Boolean isEnabled;
     private Boolean isFreezed;
-    private Integer timesRecentlyBeingFlagged;
+    private Integer timesFlagged;
     private String contactInfo;
     private String aboutMe;
 
@@ -30,7 +30,7 @@ public class UserVo implements Serializable {
         this.avatarFileName = user.getAvatarFileName();
         this.isEnabled = user.isEnabled();
         this.isFreezed = user.isFreezed();
-        this.timesRecentlyBeingFlagged = user.getTimesFlagged();
+        this.timesFlagged = user.getTimesFlagged();
         this.contactInfo = user.getContactInfo();
         this.aboutMe = user.getAboutMe();
     }
@@ -44,7 +44,7 @@ public class UserVo implements Serializable {
                 ", avatarFileName='" + avatarFileName + '\'' +
                 ", isEnabled=" + isEnabled +
                 ", isFreezed=" + isFreezed +
-                ", timesRecentlyBeingFlagged=" + timesRecentlyBeingFlagged +
+                ", timesFlagged=" + timesFlagged +
                 ", contactInfo='" + contactInfo + '\'' +
                 ", aboutMe='" + aboutMe + '\'' +
                 '}';

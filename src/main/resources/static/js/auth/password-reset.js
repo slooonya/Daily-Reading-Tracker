@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('req-length').classList.toggle('valid', value.length >= 8 && value.length <= 64);
             document.getElementById('req-uppercase').classList.toggle('valid', /[A-Z]/.test(value));
             document.getElementById('req-lowercase').classList.toggle('valid', /[a-z]/.test(value));
-            document.getElementById('req-number').classList.toggle('valid', /0-9/.test(value));
+            document.getElementById('req-number').classList.toggle('valid', /[0-9]/.test(value));
         });
     }
 

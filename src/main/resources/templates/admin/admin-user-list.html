@@ -89,7 +89,7 @@
               <option value="username" th:selected="${sortField == 'username'}">Username</option>
               <option value="email" th:selected="${sortField == 'email'}">Email</option>
               <option value="isFreezed" th:selected="${sortField == 'isFreezed'}">Account Status</option>
-              <option value="recentlyFlagged" th:selected="${sortField == 'recentlyFlagged'}">Recently Flagged</option>
+              <option value="timesFlagged" th:selected="${sortField == 'timesFlagged'}">Times Flagged</option>
               <option value="roles" th:selected="${sortField == 'roles'}">Role</option>
             </select>
           </div>
@@ -142,11 +142,11 @@
                   </span>
                 </td>
                 <td>
-                  <span th:if="${user.recentlyFlagged}" class="status-badge flagged">
+                  <span th:if="${user.timesFlagged}" class="status-badge flagged">
                     <i class="fas fa-flag"></i> Yes
                   </span>
 
-                  <span th:unless="${user.recentlyFlagged}" class="status-badge">
+                  <span th:unless="${user.timesFlagged}" class="status-badge">
                     <i class="fas fa-close"></i> No
                   </span>
                 </td>

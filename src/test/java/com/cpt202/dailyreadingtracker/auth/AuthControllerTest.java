@@ -96,7 +96,7 @@ class AuthControllerTest {
                         .file(validAvatar)
                         .flashAttr("user", testUser))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("/verify-pending*"));
+                .andExpect(redirectedUrlPattern("/verification-pending*"));
     }
 
     // AC_004
@@ -151,7 +151,7 @@ class AuthControllerTest {
                         .param("username", "unverified")
                         .param("password", "password"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("/verify-pending*"));
+                .andExpect(redirectedUrlPattern("/verification-pending*"));
     }
 
     // AC_008

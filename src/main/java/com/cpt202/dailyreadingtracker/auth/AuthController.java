@@ -61,7 +61,7 @@ public class AuthController {
         if (logout != null)
             model.addAttribute("message", "You have been logged out successfully.");
         
-        if (mode.equals("register"))
+        if ("register".equals(mode))
             model.addAttribute("defaultToRegister", true);
 
         return "auth/authentication";
